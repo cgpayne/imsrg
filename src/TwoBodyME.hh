@@ -2,6 +2,7 @@
 #ifndef TwoBodyME_h
 #define TwoBodyME_h 1
 
+#include "Constants.hh"
 #include <memory>
 #include <fstream>
 #include "ModelSpace.hh"

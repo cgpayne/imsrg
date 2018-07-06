@@ -1,7 +1,7 @@
 
 #include "imsrg_util.hh"
 #include "AngMom.hh"
-//#include "DarkMatterNREFT.hh"
+#include "NDBD.hh"
 #include <gsl/gsl_integration.h>
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/math/special_functions/factorials.hpp>
@@ -27,7 +27,7 @@ namespace imsrg_util
    return out;
  }
 
- Operator OperatorFromString(ModelSpace& modelspace, string opname )
+ Operator OperatorFromString(ModelSpace& modelspace, string &opname)
  {
       vector<string> opnamesplit = split_string( opname, "_" );  // split string on _ into a vector of string so that, e.g. "R2_p1"  =>  {"R2", "p1"}
 
@@ -64,6 +64,7 @@ namespace imsrg_util
       else if (opname == "Sigma_p")       return Sigma_Op_pn(modelspace,"proton");
       else if (opname == "Sigma_n")       return Sigma_Op_pn(modelspace,"neutron");
       else if (opname == "L2rel")         return L2rel_Op(modelspace); // Untested...
+      else if (opname == "DGT")           return DGT_Op(modelspace); // Double-Gamow-Teller TBMEs (CP), Untested...
       else if (opnamesplit[0] =="HCM")
       {
          if ( opnamesplit.size() == 1 ) return HCM_Op(modelspace);
@@ -135,13 +136,153 @@ namespace imsrg_util
          istringstream(opnamesplit[1]) >> nu;
          return FourierBesselCoeff( modelspace, nu, 8.0, modelspace.neutron_orbits) ;
       }
-      else if (opnamesplit[0] == "M0nu" and opnamesplit[1] == "TBME") // 0\nu\beta\beta decay TBME, M0nu_TBME_${Nq}_${SRC} (CP)
+      /*
+      else if (opnamesplit[0] == "M0nu" and opnamesplit[1] == "adpt") // 0\nu\beta\beta decay TBME, M0nu_adpt_${dirout}_${Decay}_${Reduced}_${Ec}_${SRC} (CP)
       {
-         int Nquad; // number of quadrature points
-         string src; // chosen SRC parameters (none, Argonne, CD-Bonn, Miller/Spencer)
-         istringstream(opnamesplit[2]) >> Nquad;
-         istringstream(opnamesplit[3]) >> src;
-         return M0nu_TBME_Op(modelspace,Nquad,src);
+         string dirname; // the directory to hold M0nu_header_[barcode][date].txt
+         string Type; // the decay type (F = "Fermi", GT = "Gamow-Teller", T = "Tensor")
+         string reduced; // to reduced the matrix elements or not (NR = "not reduced", R = "reduced")
+         double Ediff; // the closure energy [MeV]
+         string src; // chosen SRC parameters (none, AV18, CD-Bonn, Miller-Spencer, debug)
+         istringstream(opnamesplit[2]) >> dirname; // ${dirout}
+cout<<"dirname = "<<dirname<<endl; // debug
+         istringstream(opnamesplit[3]) >> Type; // ${Decay}
+cout<<"Type = "<<Type<<endl; // debug
+         istringstream(opnamesplit[4]) >> reduced; // ${Reduced}
+cout<<"reduced = "<<reduced<<endl; // debug
+         istringstream(opnamesplit[5]) >> Ediff; // ${Ec}
+cout<<"Ediff = "<<Ediff<<endl; // debug
+         istringstream(opnamesplit[6]) >> src; // ${SRC}
+cout<<"src = "<<src<<endl; // debug
+         double hw = modelspace.GetHbarOmega();
+         int emax = modelspace.GetEmax();
+         string barcode = cpBarcode(Type,hw,emax); // cpBarcode() found in NDBD.cc
+         cout<<endl<<"barcode = "<<barcode<<endl<<endl;
+         opname = opnamesplit[0] +
+           '_' + opnamesplit[1] +
+           '_' + opnamesplit[3] +
+           '_' + opnamesplit[4] +
+           '_' + opnamesplit[5] +
+           '_' + opnamesplit[6] + barcode; // reset opname to not have dirname in it (skipped [2], makes the opname too long), but add the barcode for imsrg++.cc
+cout<<"(new) opname = "<<opname<<endl; // debug
+exit(1); // debug
+         if (Type == "GT" or Type == "F")
+         {
+           return M0nuGTF_adpt_Op(modelspace,dirname,Type,reduced,Ediff,src,barcode);
+         }
+         else if (Type == "T")
+         {
+           return M0nuT_adpt_Op(modelspace,dirname,reduced,Ediff,src,barcode);
+         }
+         else
+         {
+           cout<<"ERROR 8973-4: with M0nu Type = "<<Type<<endl;
+           cout<<"this M0nu type has not been coded as an M0nu Operator yet!"<<endl;
+           exit(1);
+         }
+      }
+      */
+      // NOTE: opnamesplit does not work for the following operator, because a directory is an argument, and said directory may contain the delimiter "_" within (see attempt above)
+      else if (opname.substr(0,10) == "M0nu_adpt_") // 0\nu\beta\beta decay TBME, M0nu_adpt_${dirout}_${Decay}_${Reduced}_${Ec}_${SRC} (CP)
+      {
+         string dirname; // the directory to hold M0nu_header_[barcode][date].txt
+         string Type; // the decay type (F = "Fermi", GT = "Gamow-Teller", T = "Tensor")
+         string reduced; // to reduced the matrix elements or not (NR = "not reduced", R = "reduced")
+         double Ediff; // the closure energy [MeV]
+         string src; // chosen SRC parameters (none, AV18, CD-Bonn, Miller-Spencer, debug)
+         string segment;
+         stringstream ssopnames1(opname);
+         vector<string> seglist1;
+         while(getline(ssopnames1,segment,'/'))
+         {
+           seglist1.push_back(segment);
+         }
+         for (unsigned int i=1; i<seglist1.size()-1; i++)
+         {
+           dirname = dirname + "/" + seglist1.at(i);
+         }
+         dirname = dirname + "/"; // ${dirout}
+         string tempname = opname;
+         string dirsub = "_" + dirname;
+         string::size_type nd = dirsub.length();
+         for (string::size_type i = tempname.find(dirsub); i != string::npos; i = tempname.find(dirsub))
+         {
+           tempname.erase(i,nd);
+         }
+         stringstream ssopnames2(tempname);
+         vector<string> seglist2;
+         while(getline(ssopnames2,segment,'_'))
+         {
+           seglist2.push_back(segment);
+         }
+         Type = seglist2.at(2); // ${Decay}
+         reduced = seglist2.at(3); // ${Reduced}
+         Ediff = stod(seglist2.at(4)); // ${Ec}
+         src = seglist2.at(5); // ${SRC}
+         double hw = modelspace.GetHbarOmega();
+         int emax = modelspace.GetEmax();
+         string barcode = cpBarcode(Type,hw,emax); // cpBarcode() found in NDBD.cc
+         cout<<endl<<"barcode = "<<barcode<<endl<<endl;
+         opname = tempname + '_' + barcode; // reset opname to not have dirname in it (makes the opname too long), but add the barcode for imsrg++.cc
+         if (Type == "GT" or Type == "F")
+         {
+           return M0nuGTF_adpt_Op(modelspace,dirname,Type,reduced,Ediff,src,barcode);
+         }
+         else if (Type == "T")
+         {
+           return M0nuT_adpt_Op(modelspace,dirname,reduced,Ediff,src,barcode);
+         }
+         else
+         {
+           cout<<"ERROR 8973-4: with M0nu Type = "<<Type<<endl;
+           cout<<"this M0nu type has not been coded as an M0nu Operator yet!"<<endl;
+           exit(1);
+         }
+      }
+      // NOTE: opnamesplit does not work for the following operator, because a directory is an argument, and said directory may contain the delimiter "_" within
+      else if (opname.substr(0,20) == "M0nu_PrintIntegrand_") // 0\nu\beta\beta decay integrand printer, M0nu_PrintIntegrand_${dirout}_${Mode}_${Ec}_${SRC}_${nn}_${ll}_${np}_${lp}_${qa}_${qb} (CP)
+      {
+         string dirdat; // the directory to hold output data
+         int mode; // chosen mode (0 = output to file first, 1 = cout integration result first)
+         double Ediff; // the closure energy [MeV]
+         string src; // chosen SRC parameters (none, AV18, CD-Bonn, Miller-Spencer)
+         int nr,lr,npr,lpr; // the integrand parameters for the RBMEs
+         double qmin,qmax; // print the integrand over the interval [qmin,qmax] in units of [MeV]
+         string segment;
+         stringstream ssopnames1(opname);
+         vector<string> seglist1;
+         while(getline(ssopnames1,segment,'/'))
+         {
+           seglist1.push_back(segment);
+         }
+         for (unsigned int i=1; i<seglist1.size()-1; i++)
+         {
+           dirdat = dirdat + "/" + seglist1.at(i);
+         }
+         dirdat = dirdat + "/"; // ${dirout}
+         string tempname = opname;
+         string dirsub = "_" + dirdat;
+         string::size_type nd = dirsub.length();
+         for (string::size_type i = tempname.find(dirsub); i != string::npos; i = tempname.find(dirsub))
+         {
+           tempname.erase(i,nd);
+         }
+         stringstream ssopnames2(tempname);
+         vector<string> seglist2;
+         while(getline(ssopnames2,segment,'_'))
+         {
+           seglist2.push_back(segment);
+         }
+         mode = stoi(seglist2.at(2)); // ${Mode}
+         Ediff = stod(seglist2.at(3)); // ${Ec}
+         src = seglist2.at(4); // ${SRC}
+         nr = stoi(seglist2.at(5)); // ${nn}
+         lr = stoi(seglist2.at(6)); // ${ll}
+         npr = stoi(seglist2.at(7)); // ${np}
+         lpr = stoi(seglist2.at(8)); // ${lp}
+         qmin = stod(seglist2.at(9)); // ${qa}
+         qmax = stod(seglist2.at(10)); // ${qb}
+         M0nu_PrintIntegrand(modelspace,dirdat,mode,Ediff,src,nr,lr,npr,lpr,qmin,qmax);
       }
 //      else if (opnamesplit[0] == "DMNREFT") // point radius density at position r, e.g. rhop1.25
 //      {
@@ -1742,6 +1883,567 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
  }
 
 
+
+
+////////////////////////////// via NDBD.hh/cc (CP) //////////////////////////////
+
+
+//vvDGTvv
+/// This is the Double-Gamow-Teller (DGT) TBME
+/// it was coded up by me, ie) Charlie Payne (CP)
+/// these TBMEs are reduced by default, and I haven't added in any profiling yet
+/// NOTE: it has not been tested or benchmarked as of 05/23/18 (although I'm pretty sure it should work)
+  Operator DGT_Op(ModelSpace& modelspace)
+  {
+    Operator DGT_TBME(modelspace,0,2,0,2); // NOTE: from the constructor -- Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank)
+    DGT_TBME.SetHermitian(); // it should be Hermitian
+    // create the TBMEs of DGT
+    // auto loops over the TBME channels and such
+    cout<<"calculating DGT TBMEs..."<<endl;
+    for (auto& itmat : DGT_TBME.TwoBody.MatEl)
+    {
+      int chbra = itmat.first[0]; // grab the channel count from auto
+      int chket = itmat.first[1]; // " " " " " "
+      TwoBodyChannel& tbc_bra = modelspace.GetTwoBodyChannel(chbra); // grab the two-body channel
+      TwoBodyChannel& tbc_ket = modelspace.GetTwoBodyChannel(chket); // " " " " "
+      int nbras = tbc_bra.GetNumberKets(); // get the number of bras
+      int nkets = tbc_ket.GetNumberKets(); // get the number of kets
+      double J = tbc_bra.J; // NOTE: by construction, J := J_ab == J_cd := J'
+      double Jhat = sqrt(2*J + 1); // the hat factor of J
+      #pragma omp parallel for schedule(dynamic,100)
+      for (int ibra=0; ibra<nbras; ibra++)
+      {
+        Ket& bra = tbc_bra.GetKet(ibra); // get the final state = <ab|
+        int ia = bra.p; // get the integer label a
+        int ib = bra.q; // get the integer label b
+        Orbit& oa = modelspace.GetOrbit(ia); // get the <a| state orbit
+        Orbit& ob = modelspace.GetOrbit(ib); // get the <b| state prbit
+        for (int iket=0; iket<nkets; iket++)
+        {
+          Ket& ket = tbc_ket.GetKet(iket); // get the initial state = |cd>
+          int ic = ket.p; // get the integer label c
+          int id = ket.q; // get the integer label d
+          Orbit& oc = modelspace.GetOrbit(ic); // get the |c> state orbit
+          Orbit& od = modelspace.GetOrbit(id); // get the |d> state orbit
+          int la = oa.l; // this is just...
+          int lb = ob.l;
+          int lc = oc.l;
+          int ld = od.l;
+          double ja = oa.j2/2.0;
+          double jb = ob.j2/2.0;
+          double jc = oc.j2/2.0;
+          double jd = od.j2/2.0; // ...for convenience
+          double sumLS = 0; // for the final matrix elements
+          double sumLSas = 0; // (anti-symmetric part)
+          for (int S=0; S<=1; S++) // sum over total spin...
+          {
+            int Seval = 2*S*(S + 1) - 3; // eigenvalue of S
+            double sumL = 0; // for the summation over L
+            double sumLas = 0; // (anti-symmetric part)
+            for (int L = abs(la-lb); L <= la+lb; L++) // ...and sum over angular momentum coupled to l_a and l_b
+            {
+              if ((abs(lc-ld) <= L) and (L <= lc+ld))
+              {
+                double tempLS = (2*L + 1)*(2*S + 1); // just for efficiency, only used in the three lines below
+                double normab = sqrt(tempLS*(2*ja + 1)*(2*jb + 1)); // normalization factor for the 9j-symbol out front
+                double nNJab = normab*modelspace.GetNineJ(la,lb,L,0.5,0.5,S,ja,jb,J); // the normalized 9j-symbol for a and b
+                double normcd = sqrt(tempLS*(2*jc + 1)*(2*jd + 1)); // normalization factor for the second 9j-symbol
+                double nNJcd = normcd*modelspace.GetNineJ(lc,ld,L,0.5,0.5,S,jc,jd,J); // the normalized 9j-symbol for c and d
+                double nNJdc = normcd*modelspace.GetNineJ(ld,lc,L,0.5,0.5,S,jd,jc,J); // (anti-symmetric part)
+                sumL += nNJab*nNJcd; // perform the sum over L
+                sumLas += nNJab*nNJdc; // (anti-symmetric part)
+              } // end of if: |lc - ld| <= L <= lc + ld
+            } // end of for-loop over: L
+            sumLS += Seval*sumL; // perform the sum over S
+            sumLSas += Seval*sumLas; // (anti-symmetric part)
+          } // end of for-loop over: S
+          double Mtbme = cpNorm(ia,ib)*cpNorm(ic,id)*Jhat*(sumLS - modelspace.phase(jc + jd - J)*sumLSas); // compute the final matrix element, anti-symmetrize
+          DGT_TBME.TwoBody.SetTBME(chbra,chket,ibra,iket,Mtbme); // set the two-body matrix elements (TBME) to Mtbme
+        } // end of for-loop over: iket
+      } // end of for-loop over: ibra
+    } // end of for-loop over: auto
+    cout<<"...done calculating DGT TBMEs"<<endl;
+    return DGT_TBME;
+  }
+//^^DGT^^
+
+
+//vvGT/Fvv
+/// This is the M^{0\nu} TBME, for either GT or F decay type
+/// it was coded up by me, ie) Charlie Payne (CP)
+/// from my thesis, I employed Equations: (4.71), (4.72), (4.46), (4.40), (4.50), and (4.73)
+  Operator M0nuGTF_adpt_Op(ModelSpace& modelspace, string dirname, string Type, string reduced, double Ediff, string src, string barcode)
+  {
+    string meth = "PSH"; // set the method for the integration over dq and dr, "PSH" or "JE"
+    double t_start, t_start_tbme, t_start_omp; // profiling (v)
+    t_start = omp_get_wtime(); // profiling (s)
+    // run through the initial set-up routine
+    // we'll call: M0nuHeader, M0nuGTF_TBME.SetHermitian, modelspace.PreCalculateMoshinsky, ndbd.PreCalcIntegrals
+    if (reduced == "NR") {}
+    else if (reduced == "R") {}
+    else
+    {
+      cout<<"ERROR 7338233-1: invalid option for reduced = "<<reduced<<endl;
+      exit(1);
+    }
+//--GT/F--
+    double hw = modelspace.GetHbarOmega(); // oscillator basis frequency [MeV]
+    int e2max = modelspace.GetE2max(); // 2*emax
+    Operator M0nuGTF_TBME(modelspace,0,2,0,2); // NOTE: from the constructor -- Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank)
+    NDBD ndbd(hw,e2max,Type,Ediff,src,meth); // call the Constructor NDBD::NDBD(...)
+    cout<<"     reduced            =  "<<reduced<<endl;
+    M0nuGTF_TBME.SetHermitian(); // it should be Hermitian
+    int Anuc = modelspace.GetTargetMass(); // the mass number for the desired nucleus
+    const double Rnuc = (ndbd.r0/HBARC)*pow(Anuc,1.0/3.0); // the nuclear radius [MeV^-1]
+    const double prefact = 2*(2*Rnuc)/PI; // factor in-front of M0nu TBME, extra global 2 for nutbar (as confirmed by benchmarking with Ca48 NMEs) [MeV^-1]
+    M0nuHeader(ndbd,dirname,reduced,Anuc,src,Rnuc,prefact,barcode); // create a header file
+    modelspace.PreCalculateMoshinsky(); // pre-calculate the needed Moshinsky brackets, for efficiency
+    ndbd.PreCalcIntegrals(); // pre-calculate the needed integrals over dq and dr, for efficiency
+    M0nuGTF_TBME.profiler.timer["M0nuGTF_1_sur"] += omp_get_wtime() - t_start; // profiling (r)
+//--GT/F--
+    // create the TBMEs of M0nu
+    // auto loops over the TBME channels and such
+    cout<<"calculating M0nu TBMEs..."<<endl;
+    t_start_tbme = omp_get_wtime(); // profiling (s)
+    for (auto& itmat : M0nuGTF_TBME.TwoBody.MatEl)
+    {
+      int chbra = itmat.first[0]; // grab the channel count from auto
+      int chket = itmat.first[1]; // " " " " " "
+      TwoBodyChannel& tbc_bra = modelspace.GetTwoBodyChannel(chbra); // grab the two-body channel
+      TwoBodyChannel& tbc_ket = modelspace.GetTwoBodyChannel(chket); // " " " " "
+      int nbras = tbc_bra.GetNumberKets(); // get the number of bras
+      int nkets = tbc_ket.GetNumberKets(); // get the number of kets
+      double J = tbc_bra.J; // NOTE: by construction, J := J_ab == J_cd := J'
+      double Jhat; // set below based on "reduced" variable
+//--GT/F--
+      if (reduced == "NR")
+      {
+        Jhat = 1.0; // for non-reduced elements, to compare with JE
+      }
+      else //if (reduced == "R")
+      {
+        Jhat = sqrt(2*J + 1); // the hat factor of J
+      }
+      t_start_omp = omp_get_wtime(); // profiling (s)
+      #pragma omp parallel for schedule(dynamic,100) // need to do: PreCalculateMoshinsky() and PreCalcIntegrals() [above] and then "#pragma omp critical" [below]
+      for (int ibra=0; ibra<nbras; ibra++)
+      {
+        Ket& bra = tbc_bra.GetKet(ibra); // get the final state = <ab|
+//--GT/F--
+        int ia = bra.p; // get the integer label a
+        int ib = bra.q; // get the integer label b
+        Orbit& oa = modelspace.GetOrbit(ia); // get the <a| state orbit
+        Orbit& ob = modelspace.GetOrbit(ib); // get the <b| state prbit
+        for (int iket=0; iket<nkets; iket++)
+        {
+          Ket& ket = tbc_ket.GetKet(iket); // get the initial state = |cd>
+          int ic = ket.p; // get the integer label c
+          int id = ket.q; // get the integer label d
+          Orbit& oc = modelspace.GetOrbit(ic); // get the |c> state orbit
+          Orbit& od = modelspace.GetOrbit(id); // get the |d> state orbit
+          int na = oa.n; // this is just...
+          int nb = ob.n;
+          int nc = oc.n;
+          int nd = od.n;
+//--GT/F--
+          int la = oa.l;
+          int lb = ob.l;
+          int lc = oc.l;
+          int ld = od.l;
+          double ja = oa.j2/2.0;
+          double jb = ob.j2/2.0;
+          double jc = oc.j2/2.0;
+          double jd = od.j2/2.0; // ...for convenience
+          double sumLS = 0; // for the Bessel's Matrix Elemets (BMEs)
+          double sumLSas = 0; // (anti-symmetric part)
+          for (int S=0; S<=1; S++) // sum over total spin...
+          {
+//--GT/F--
+            int Seval = 1.0; // eigenvalue of S, only used for "GT" type M0nu
+            if (Type == "GT")
+            {
+              Seval = 2*S*(S + 1) - 3;
+            }
+            for (int L = abs(la-lb); L <= la+lb; L++) // ...and sum over angular momentum coupled to l_a and l_b
+            {
+              if ((abs(lc-ld) <= L) and (L <= lc+ld))
+              {
+                double bulk = 0; // this is a bulk product which will only be worth calculating if the Moshinsky brackets are non-zero
+                double bulkas = 0; // (anti-symmetric part)
+                double sumMT = 0; // for the Moshinsky transformation
+                double sumMTas = 0; // (anti-symmetric part)
+                int eps_ab = 2*na + la + 2*nb + lb; // for conservation of energy in the Moshinsky brackets
+                int tempmaxnr = floor((eps_ab - L)/2.0); // just for the limits below
+//--GT/F--
+                for (int nr = 0; nr <= tempmaxnr; nr++)
+                {
+                  int eps_cd = 2*nc + lc + 2*nd + ld; // for conservation of energy in the Moshinsky brackets
+                  double npr = ((eps_cd - eps_ab)/2.0) + nr; // via Equation (4.73) of my thesis
+                  double intnpr = npr - floor(npr); // to check if npr is an integer
+                  if ((npr >= 0) and (intnpr == 0))
+                  {
+                    int tempmaxNcom = tempmaxnr - nr; // just for the limits below
+                    for (int Ncom = 0; Ncom <= tempmaxNcom; Ncom++)
+                    {
+                      int tempminlr = ceil((eps_ab - L)/2.0) - (nr + Ncom); // just for the limits below
+                      int tempmaxlr = floor((eps_ab + L)/2.0) - (nr + Ncom); // " " " " "
+                      for (int lr = tempminlr; lr <= tempmaxlr; lr++)
+                      {
+//--GT/F--
+                        int Lam = eps_ab - 2*(nr + Ncom) - lr; // via Equation (4.73) of my thesis
+                        double tempLS = (2*L + 1)*(2*S + 1); // just for efficiency, only used in the three lines below
+                        double normab = sqrt(tempLS*(2*ja + 1)*(2*jb + 1)); // normalization factor for the 9j-symbol out front
+                        double nNJab = normab*modelspace.GetNineJ(la,lb,L,0.5,0.5,S,ja,jb,J); // the normalized 9j-symbol out front
+                        double normcd = sqrt(tempLS*(2*jc + 1)*(2*jd + 1)); // normalization factor for the second 9j-symbol
+                        double nNJcd = normcd*modelspace.GetNineJ(lc,ld,L,0.5,0.5,S,jc,jd,J); // the second normalized 9j-symbol
+                        double nNJdc = normcd*modelspace.GetNineJ(ld,lc,L,0.5,0.5,S,jd,jc,J); // (anti-symmetric part)
+                        bulk = Seval*nNJab*nNJcd; // bulk product of the above
+                        bulkas = Seval*nNJab*nNJdc; // (anti-symmetric part)
+                        double Df,Di,asDi,integral; // these *will* be set below
+                        #pragma omp critical
+                        {
+                          Df = modelspace.GetMoshinsky(Ncom,Lam,nr,lr,na,la,nb,lb,L); // Ragnar has -- double mosh_ab = modelspace.GetMoshinsky(N_ab,Lam_ab,n_ab,lam_ab,na,la,nb,lb,Lab);
+                          Di = modelspace.GetMoshinsky(Ncom,Lam,npr,lr,nc,lc,nd,ld,L); // " " " "
+                          asDi = modelspace.GetMoshinsky(Ncom,Lam,npr,lr,nd,ld,nc,lc,L); // (anti-symmetric part)
+//--GT/F--
+                          integral = ndbd.GetIntegral(nr,lr,npr,lr); // grab the pre-calculated integral wrt dq and dr from the IntList of the NDBD class
+                        }
+                        sumMT += Df*Di*integral; // perform the Moshinsky transformation
+                        sumMTas += Df*asDi*integral; // (anti-symmetric part)
+                      } // end of for-loop over: lr
+                    } // end of for-loop over: Ncom
+                  } // end of if: npr \in \Nat_0
+                } // end of for-loop over: nr
+                sumLS += bulk*sumMT; // perform the LS-coupling sum
+                sumLSas += bulkas*sumMTas; // (anti-symmetric part)
+              } // end of if: |lc - ld| <= L <= lc + ld
+            } // end of for-loop over: L
+          } // end of for-loop over: S
+//--GT/F--
+          double Mtbme = cpNorm(ia,ib)*cpNorm(ic,id)*prefact*Jhat*(sumLS - modelspace.phase(jc + jd - J)*sumLSas); // compute the final matrix element, anti-symmetrize
+          M0nuGTF_TBME.TwoBody.SetTBME(chbra,chket,ibra,iket,Mtbme); // set the two-body matrix elements (TBME) to Mtbme
+        } // end of for-loop over: iket
+      } // end of for-loop over: ibra
+      M0nuGTF_TBME.profiler.timer["M0nuGTF_3_omp"] += omp_get_wtime() - t_start_omp; // profiling (r)
+    } // end of for-loop over: auto
+    cout<<"...done calculating M0nu TBMEs"<<endl;
+    M0nuGTF_TBME.profiler.timer["M0nuGTF_2_tbme"] += omp_get_wtime() - t_start_tbme; // profiling (r)
+    M0nuGTF_TBME.profiler.timer["M0nuGTF_adpt_Op"] += omp_get_wtime() - t_start; // profiling (r)
+    return M0nuGTF_TBME;
+  }
+//^^GT/F^^
+
+
+//vvTvv
+/// This is the M^{0\nu} TBME, for T decay type
+/// it was coded up by me, ie) Charlie Payne (CP)
+/// from my thesis, I employed Equations: (4.71), (4.72), (4.31), and (4.74)
+  Operator M0nuT_adpt_Op(ModelSpace& modelspace, string dirname, string reduced, double Ediff, string src, string barcode)
+  {
+    string meth = "PSH"; // set the method for the integration over dq and dr, "PSH" or "JE"
+    string Type = "T"; // set the decay type, in this case it's for the Tensor type
+    double t_start, t_start_tbme, t_start_omp; // profiling (v)
+    t_start = omp_get_wtime(); // profiling (s)
+    // run through the initial set-up routine
+    // we'll call: M0nuHeader, M0nuT_TBME.SetHermitian, modelspace.PreCalculateMoshinsky, ndbd.PreCalcT6j, ndbd.PreCalcIntegrals
+    if (reduced == "NR") {}
+    else if (reduced == "R") {}
+    else
+    {
+      cout<<"ERROR 7338233-2: invalid option for reduced = "<<reduced<<endl;
+      exit(1);
+    }
+//--T--
+    double hw = modelspace.GetHbarOmega(); // oscillator basis frequency [MeV]
+    int e2max = modelspace.GetE2max(); // 2*emax
+    Operator M0nuT_TBME(modelspace,0,2,0,2); // NOTE: from the constructor -- Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank)
+    NDBD ndbd(hw,e2max,Type,Ediff,src,meth); // call the Constructor NDBD::NDBD(...)
+    cout<<"     reduced            =  "<<reduced<<endl;
+    M0nuT_TBME.SetHermitian(); // it should be Hermitian
+    int Anuc = modelspace.GetTargetMass(); // the mass number for the desired nucleus
+    const double Rnuc = (ndbd.r0/HBARC)*pow(Anuc,1.0/3.0); // the nuclear radius [MeV^-1]
+    const double prefact = 2*(2*Rnuc)/PI; // factor in-front of M0nu TBME, extra global 2 for nutbar (as confirmed by benchmarking with Ca48 NMEs) [MeV^-1]
+    M0nuHeader(ndbd,dirname,reduced,Anuc,src,Rnuc,prefact,barcode); // create a header file
+    modelspace.PreCalculateMoshinsky(); // pre-calculate the needed Moshinsky brackets, for efficiency
+    ndbd.PreCalcT6j(); // pre-calculate the expected 6j-symbols, for efficiency
+    ndbd.PreCalcIntegrals(); // pre-calculate the needed integrals over dq and dr, for efficiency
+//--T--
+    // now we'll precalculate and cache the factors involving the Clebsch-Goradan coefficients, see "factSH" within the TMT
+    double SQRT6 = sqrt(6);
+    double listSH[PairFN(e2max,e2max)];
+    #pragma omp parallel for schedule(dynamic,1)
+    for (int lr=0; lr<=e2max; lr++)
+    {
+      for (int lpr=0; lpr<=e2max; lpr++)
+      {
+        int tempPF = PairFN(lr,lpr);
+        if ((abs(lr-2) <= lpr and lpr <= lr+2) and ((lr+lpr)%2 == 0))
+        {
+          listSH[tempPF] = SQRT6*CG(lr,0,2,0,lpr,0)*sqrt(2*lr + 1);
+        }
+        else
+        {
+          listSH[tempPF] = 0; // just to be safe, amirite!?
+        }
+      }
+    }
+    M0nuT_TBME.profiler.timer["M0nuT_1_sur"] += omp_get_wtime() - t_start; // profiling (r)
+//--T--
+    // create the TBMEs of M0nu
+    // auto loops over the TBME channels and such
+    cout<<"calculating M0nu TBMEs..."<<endl;
+    t_start_tbme = omp_get_wtime(); // profiling (s)
+    double Seval = 2.0*sqrt(5.0); // eigenvalue of S for "T", where the only non-zero one is for Sf = Si = 1
+    for (auto& itmat : M0nuT_TBME.TwoBody.MatEl)
+    {
+      int chbra = itmat.first[0]; // grab the channel count from auto
+      int chket = itmat.first[1]; // " " " " " "
+      TwoBodyChannel& tbc_bra = modelspace.GetTwoBodyChannel(chbra); // grab the two-body channel
+      TwoBodyChannel& tbc_ket = modelspace.GetTwoBodyChannel(chket); // " " " " "
+      int nbras = tbc_bra.GetNumberKets(); // get the number of bras
+      int nkets = tbc_ket.GetNumberKets(); // get the number of kets
+      double J = tbc_bra.J; // NOTE: by construction, J := J_ab == J_cd := J'
+      double Jhat; // set below based on "reduced" variable
+//--T--
+      if (reduced == "NR")
+      {
+        Jhat = 1.0; // for non-reduced elements, to compare with JE
+      }
+      else //if (reduced == "R")
+      {
+        Jhat = sqrt(2*J + 1); // the hat factor of J
+      }
+      t_start_omp = omp_get_wtime(); // profiling (s)
+      #pragma omp parallel for schedule(dynamic,100) // need to do: PreCalculateMoshinsky(), PreCalcT6j, and PreCalcIntegrals() [above] and then "#pragma omp critical" [below]
+      for (int ibra=0; ibra<nbras; ibra++)
+      {
+        Ket& bra = tbc_bra.GetKet(ibra); // get the final state = <ab|
+//--T--
+        int ia = bra.p; // get the integer label a
+        int ib = bra.q; // get the integer label b
+        Orbit& oa = modelspace.GetOrbit(ia); // get the <a| state orbit
+        Orbit& ob = modelspace.GetOrbit(ib); // get the <b| state prbit
+        for (int iket=0; iket<nkets; iket++)
+        {
+          Ket& ket = tbc_ket.GetKet(iket); // get the initial state = |cd>
+          int ic = ket.p; // get the integer label c
+          int id = ket.q; // get the integer label d
+          Orbit& oc = modelspace.GetOrbit(ic); // get the |c> state orbit
+          Orbit& od = modelspace.GetOrbit(id); // get the |d> state orbit
+          int na = oa.n; // this is just...
+          int nb = ob.n;
+          int nc = oc.n;
+          int nd = od.n;
+//--T--
+          int la = oa.l;
+          int lb = ob.l;
+          int lc = oc.l;
+          int ld = od.l;
+          double ja = oa.j2/2.0;
+          double jb = ob.j2/2.0;
+          double jc = oc.j2/2.0;
+          double jd = od.j2/2.0; // ...for convenience
+          double sumLS = 0; // for the Bessel's Matrix Elemets (BMEs)
+          double sumLSas = 0; // (anti-symmetric part)
+          for (int Lf = abs(la-lb); Lf <= la+lb; Lf++) // sum over angular momentum coupled to l_a and l_b
+          {
+            for (int Li = abs(lc-ld); Li <= lc+ld; Li++) // sum over angular momentum coupled to l_c and l_d
+            {
+//--T--
+              double bulk = 0; // this is a bulk product which will only be worth calculating if the Moshinsky brackets are non-zero
+              double bulkas = 0; // (anti-symmetric part)
+              double sumMT = 0; // for the Moshinsky transformation
+              double sumMTas = 0; // (anti-symmetric part)
+              if (((abs(Lf-1) <= J) and (J <= Lf+1)) and ((abs(1-Li) <= J) and (J <= 1+Li)) and ((abs(Lf-Li) <= 2) and (2 <= Lf+Li))) // so that the GetT6j in factLS/factMT below are non-zero
+              {
+                int eps_ab = 2*na + la + 2*nb + lb; // for conservation of energy in the Moshinsky brackets
+                int tempmaxnr = floor((eps_ab - Lf)/2.0); // just for the limits below
+                for (int nr = 0; nr <= tempmaxnr; nr++)
+                {
+                  int tempmaxNcom = tempmaxnr - nr; // just for the limits below
+                  for (int Ncom = 0; Ncom <= tempmaxNcom; Ncom++)
+                  {
+                    int tempminlr = ceil((eps_ab - Lf)/2.0) - (nr + Ncom); // just for the limits below
+                    int tempmaxlr = floor((eps_ab + Lf)/2.0) - (nr + Ncom); // " " " " "
+                    for (int lr = tempminlr; lr <= tempmaxlr; lr++)
+                    {
+//--T--
+                      int Lam = eps_ab - 2*(nr + Ncom) - lr; // via Equation (4.74) of my thesis
+                      int tempminlpr = abs(Lam - Li); // just for the limits below
+                      int tempmaxlpr = Lam + Li; // " " " " "
+                      for (int lpr = tempminlpr; lpr <= tempmaxlpr; lpr++)
+                      {
+                        if ((abs(lr-2) <= lpr and lpr <= lr+2) and ((lr+lpr)%2 == 0)) // so that the CG in listSH and factMT below are non-zero
+                        {
+                          int eps_cd = 2*nc + lc + 2*nd + ld; // for conservation of energy in the Moshinsky brackets
+                          double npr = ((eps_cd - eps_ab)/2.0) + ((lr - lpr)/2.0) + nr; // via Equation (4.74) of my thesis...
+                          //double npr = ((eps_cd - lpr - Lam)/2.0) - Ncom; // ...also works
+                          double intnpr = npr - floor(npr); // to check if npr is an integer
+                          if ((npr >= 0) and (intnpr == 0))
+                          {
+//--T--
+                            double tempLf = (2*Lf + 1); // just for the lines below
+                            double tempLi = (2*Li + 1); // " " " " "
+                            double factLS = modelspace.phase(1 + J + Li)*ndbd.GetT6j(Lf,1,J,1,Li); // factor from transforming from jj-coupling to ls-coupling
+                            double normab = sqrt(tempLf*3*(2*ja + 1)*(2*jb + 1)); // normalization factor for the 9j-symbol out front
+                            double nNJab = normab*modelspace.GetNineJ(la,lb,Lf,0.5,0.5,1,ja,jb,J); // the normalized 9j-symbol out front
+                            double normcd = sqrt(tempLi*3*(2*jc + 1)*(2*jd + 1)); // normalization factor for the second 9j-symbol
+                            double nNJcd = normcd*modelspace.GetNineJ(lc,ld,Li,0.5,0.5,1,jc,jd,J); // the second normalized 9j-symbol
+                            double nNJdc = normcd*modelspace.GetNineJ(ld,lc,Li,0.5,0.5,1,jd,jc,J); // (anti-symmetric part)
+                            double tempMT = sqrt(tempLf*tempLi); // the hat factor of Lf and Li
+                            bulk = Seval*factLS*nNJab*nNJcd*tempMT; // bulk product of the above
+                            bulkas = Seval*factLS*nNJab*nNJdc*tempMT; // (anti-symmetric part)
+                            double Df,Di,asDi,integral,factMT; // these *will* be set below
+                            #pragma omp critical
+                            {
+//--T--
+                              Df = modelspace.GetMoshinsky(Ncom,Lam,nr,lr,na,la,nb,lb,Lf); // Ragnar has -- double mosh_ab = modelspace.GetMoshinsky(N_ab,Lam_ab,n_ab,lam_ab,na,la,nb,lb,Lab);
+                              Di = modelspace.GetMoshinsky(Ncom,Lam,npr,lpr,nc,lc,nd,ld,Li); // " " " "
+                              asDi = modelspace.GetMoshinsky(Ncom,Lam,npr,lpr,nd,ld,nc,lc,Li); // (anti-symmetric part)
+                              integral = ndbd.GetIntegral(nr,lr,npr,lpr); // grab the pre-calculated integral wrt dq and dr from the IntList of the NDBD class
+                              factMT = modelspace.phase(Li + lr + Lam)*ndbd.GetT6j(Lf,lr,Lam,lpr,Li); // factor from TMT
+                            }
+                            double tempfactMTSH = factMT*listSH[PairFN(lr,lpr)]; // just for the lines below, listSH from the spherical harmonics of order 2
+                            sumMT += Df*Di*tempfactMTSH*integral; // perform the Moshinsky transformation
+                            sumMTas += Df*asDi*tempfactMTSH*integral; // (anti-symmetric part)
+                          } // end of if: npr \in \Nat_0
+                        } // end of if: CG != 0, factMT != 0
+                      } // end of for-loop over: lpr
+                    } // end of for-loop over: lr
+                  } // end of for-loop over: Ncom
+                } // end of for-loop over: nr
+//--T--
+              } // end of if: factLS != 0, factMT != 0
+              sumLS += bulk*sumMT; // perform the LS-coupling sum
+              sumLSas += bulkas*sumMTas; // (anti-symmetric part)
+            } // end of for-loop over: Li
+          } // end of for-loop over: Lf
+          double Mtbme = cpNorm(ia,ib)*cpNorm(ic,id)*prefact*Jhat*(sumLS - modelspace.phase(jc + jd - J)*sumLSas); // compute the final matrix element, anti-symmetrize
+          M0nuT_TBME.TwoBody.SetTBME(chbra,chket,ibra,iket,Mtbme); // set the two-body matrix elements (TBME) to Mtbme
+        } // end of for-loop over: iket
+      } // end of for-loop over: ibra
+      M0nuT_TBME.profiler.timer["M0nuT_3_omp"] += omp_get_wtime() - t_start_omp; // profiling (r)
+    } // end of for-loop over: auto
+    cout<<"...done calculating M0nu TBMEs"<<endl;
+    M0nuT_TBME.profiler.timer["M0nuT_2_tbme"] += omp_get_wtime() - t_start_tbme; // profiling (r)
+    M0nuT_TBME.profiler.timer["M0nuT_adpt_Op"] += omp_get_wtime() - t_start; // profiling (r)
+    return M0nuT_TBME;
+  }
+//^^T^^
+
+
+/// This prints the integrand(nr,lr,npr) to file as a function of q [MeV] over the interval [qmin,qmax]
+/// It's been primarily used for testing/debugging/etc
+  void M0nu_PrintIntegrand(ModelSpace& modelspace, string dirdat, int mode, double Ediff, string src, int nr, int lr, int npr, int lpr, double qmin, double qmax)
+  {
+    // create the output files which hold the integrand
+    string base = dirdat;
+    string Istr = "M0nu_integrand_";
+    string typeGT = "GT";
+    string typeF = "F";
+    string typeT = "T";
+    string end = ".txt";
+    ofstream IGTout(base+Istr+typeGT+end);
+    if (!IGTout)
+    {
+      cout<<"ERROR: with IGTout"<<endl;
+      exit(1);
+    }
+    ofstream IFout(base+Istr+typeF+end);
+    if (!IFout)
+    {
+      cout<<"ERROR: with IFout"<<endl;
+      exit(1);
+    }
+    ofstream ITout(base+Istr+typeT+end);
+    if (!ITout)
+    {
+      cout<<"ERROR: with ITout"<<endl;
+      exit(1);
+    }
+    // set stuff up
+    string meth = "PSH";
+    double hw = modelspace.GetHbarOmega();
+    int e2max = modelspace.GetE2max();
+    NDBD ndbdGT(hw,e2max,typeGT,Ediff,src,meth);
+    NDBD ndbdF(hw,e2max,typeF,Ediff,src,meth);
+    NDBD ndbdT(hw,e2max,typeT,Ediff,src,meth);
+    gsl_function FqGT,FqF,FqT;
+    double fqparams[18];
+    int dqswitch = 0;
+    int drswitch = 0;
+    ndbdGT.SetPSH(nr,lr,npr,lpr,dqswitch,drswitch); // could use either ndbdGT or ndbdF or ndbdT here
+    ndbdGT.SetIparams(nr,lr,npr,lpr,drswitch,fqparams); // " " " " " " " " "
+    FqGT.params = &(fqparams[0]);
+    FqF.params = &(fqparams[0]);
+    FqT.params = &(fqparams[0]);
+    FqGT.function = &fqGT; // point to the Gamow-Teller type
+    FqF.function = &fqF; // point to the Fermi type
+    FqT.function = &fqT; // point to the Tensor type
+    cout<<endl<<"nr = "<<nr<<", lr = "<<lr<<", npr = "<<npr<<", lpr = "<<lpr<<endl;
+    cout<<"dqswitch = "<<dqswitch<<", drsqitch = "<<drswitch<<endl;
+    cout<<"where: 1 = analytic"<<endl;
+    cout<<"       2 = qagiu"<<endl;
+    cout<<"       3 = qag"<<endl<<endl;
+    if (mode == 0)
+    {
+      // FIRST we'll print the integrands
+      cout<<"printing the integrands..."<<endl;
+      int res = 40001; // plotting resolution
+      double dr = (qmax - qmin)/(res - 1);
+      for (int i=0; i<res; i++)
+      {
+        double q = i*dr + qmin;
+        IGTout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqGT,q)<<endl; // print q and integrand to the output file, GSL_FN_EVAL is found in <gsl_math.h>
+        IFout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqF,q)<<endl; // " " " " " " " " " " " " "
+        ITout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqT,q)<<endl; // " " " " " " " " " " " " "
+      }
+      IGTout.close();
+      IFout.close();
+      ITout.close();
+      cout<<"...done printing the integrands"<<endl<<endl;
+      // LAST we'll run the integrations and output them to screen
+      cout<<"# from M0nu_PrintIntegrand"<<endl;
+      cout<<"the GT integration = "<<setprecision(12)<<ndbdGT.dqdrPSH(nr,lr,npr,lpr)<<endl; // don't use GetIntgral...
+      cout<<"the F integration  = "<<setprecision(12)<<ndbdF.dqdrPSH(nr,lr,npr,lpr)<<endl; // ...because ndbdGT and ndbdF share the IntList...
+      cout<<"the T integration  = "<<setprecision(12)<<ndbdT.dqdrPSH(nr,lr,npr,lpr)<<endl<<endl; // ...and so does ndbdT :S
+    }
+    else if (mode == 1)
+    {
+      // FIRST we'll run the integrations and output them to screen
+      cout<<"# from M0nu_PrintIntegrand"<<endl;
+      cout<<"the GT integration = "<<setprecision(12)<<ndbdGT.dqdrPSH(nr,lr,npr,lpr)<<endl; // don't use GetIntgral...
+      cout<<"the F integration  = "<<setprecision(12)<<ndbdF.dqdrPSH(nr,lr,npr,lpr)<<endl; // ...because ndbdGT and ndbdF share the IntList...
+      cout<<"the T integration  = "<<setprecision(12)<<ndbdT.dqdrPSH(nr,lr,npr,lpr)<<endl<<endl; // ...and so does ndbdT :S
+      // LAST we'll print the integrands
+      cout<<"printing the integrands..."<<endl;
+      int res = 40001; // plotting resolution
+      double dr = (qmax - qmin)/(res - 1);
+      for (int i=0; i<res; i++)
+      {
+        double q = i*dr + qmin;
+        IGTout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqGT,q)<<endl; // print q and integrand to the output file, GSL_FN_EVAL is found in <gsl_math.h>
+        IFout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqF,q)<<endl; // " " " " " " " " " " " " "
+        ITout<<setprecision(12)<<q<<"\t"<<GSL_FN_EVAL(&FqT,q)<<endl; // " " " " " " " " " " " " "
+      }
+      IGTout.close();
+      IFout.close();
+      ITout.close();
+      cout<<"...done printing the integrands"<<endl<<endl;
+    }
+    else
+    {
+      cout<<"ERROR 6633: invalid option for mode = "<<mode<<endl;
+      exit(1);
+    }
+  }
+
+
+////////////////////////// END OF: via NDBD.hh/cc (CP) //////////////////////////
+
+
+
+
  // Evaluate <bra | r1*r2 | ket>, omitting the factor (hbar * omega) /(m * omega^2)
 /// Returns the normalized, anti-symmetrized, J-coupled, two-body matrix element of \f$ \frac{m\omega^2}{\hbar \omega} \vec{r}_1\cdot\vec{r}_2 \f$.
 /// Calculational details are similar to Calculate_p1p2().
@@ -1844,472 +2546,6 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
    return r1xp2 ;
 
  }
-
-
-//////////// M0v functions written by Charlie Payne //////////////////////////
-
-/// This is the M^{0\nu} TBME from Equation (1) of [PRC 87, 064315 (2013)]
-/// it was coded up by me, ie) Charlie Payne (CP)
-/// from my thesis, I employed Equations: 
-  Operator M0nu_TBME_Op(ModelSpace& modelspace, int Nquad, string src)
-  {
-    // VVV~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~VVV
-    // VVV~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~VVV
-    // adjustable parameters, lines BELOW
-    //double reltol = 2*pow(10,-4); // relative tolerance for GLQ integration convergence
-    const double mpro = 938.27231; // the proton mass [MeV] for the g-factors
-    const double mpion = 139.57; // the pion mass [MeV] for the g-factors
-    const double magmom = 3.706; // the difference between the (anomolous?) magnetic moment of a proton and neutron (units of \mu_N)
-    const double g0V = 1.0; // the vector g-factor at zero momentum
-    const double g0A = 1.27; // the axial-vector g-factor at zero momentum
-    const double cutoffV = 850.0; // the vector finite-size parameter [MeV]
-    const double cutoffA = 1086.0; // the axial-vector finite-size parameter [MeV]
-    const double Ebar = 5.0; // the ref-closure energy [MeV], should be roughly independent of this...
-    const double Ei = 0.0; // the initial energy [MeV] in the closure energy (4.26798)
-    const double Ef = 0.0; // " final " [MeV] " " " "
-    //const double mnusq = pow(1.2,-14); // the (max) electron-neutrino mass squared [MeV^2] (this is primarily for testing)
-    // adjustable parameters, lines ABOVE
-    // ^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-    // ^^^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-    Operator M0nu_TBME(modelspace,0,2,0,2); // NOTE: from the constructor -- Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank)
-    M0nu_TBME.SetHermitian(); // it should be Hermitian...
-    const double Rnuc = (1.2/HBARC)*pow(modelspace.GetTargetMass(),1.0/3.0); // the nuclear radius [MeV^-1]
-    const double prefact = 2*(2*Rnuc)/(PI*g0A*g0A); // factor in-front of M0nu TBME [MeV^-1], factor of 2 from sum_{ab} = 2sum_{a<b} to match with JE
-    const double Ediff = Ebar - ((Ei + Ef)/2.0); // the closure energy [MeV]
-    // set the SRC parameters a,b,c in the Jastrow-type correlation function
-    double aa,bb; // [MeV^2]
-    double cc; // [Unitless]
-    string argstr = "Argonne";
-    string cdbstr = "CD-Bonn";
-    string masstr = "Miller-Spencer";
-    if (src == argstr)
-    {
-      aa = 1.59*HBARC*HBARC;
-      bb = 1.45*HBARC*HBARC;
-      cc = 0.92;
-    }
-    else if (src == cdbstr)
-    {
-      aa = 1.52*HBARC*HBARC;
-      bb = 1.88*HBARC*HBARC;
-      cc = 0.46;
-    }
-    else if (src == masstr)
-    {
-      aa = 1.1*HBARC*HBARC;
-      bb = 0.68*HBARC*HBARC;
-      cc = 1.0;
-    }
-    else // src == "none" or otherwise
-    {
-      aa = 0;  bb = 0;  cc = 0; // set them to zero to avoid variable warnings
-    }
-    // set the GLQ roots and weights
-    if (Nquad != 187)
-    {
-      cout<<"ERROR 187: please set Nquad to 187 by running the operator as M0nu_TBME_187_none"<<endl;
-      cout<<"which I do to stay consistent with previous naming conventions."<<endl;
-      exit(1);
-    }
-    double nodes[187][2] = { {0.00771093190434205, 0.01978880917191989},
-                               {0.04062903529180086, 0.04606592889118855},
-                               {0.09985365551375681, 0.07238518879149865},
-                               {0.1854021036766674, 0.09871291032827842},
-                               {0.2972819985528331, 0.1250482436418515},
-                               {0.4355015848139718, 0.151392567186406},
-                               {0.6000707059043154, 0.1777476120597593},
-                               {0.7910009885390217, 0.2041151966450439},
-                               {1.008305895218917, 0.2304971697691649},
-                               {1.252000745415518, 0.2568953952378961},
-                               {1.522102727728737, 0.2833117470989823},
-                               {1.818630909285556, 0.3097481082650387},
-                               {2.141606244467358, 0.3362063703580633},
-                               {2.491051583758736, 0.3626884340417398},
-                               {2.866991683053023, 0.389196209573469},
-                               {3.269453213570937, 0.4157316174666621},
-                               {3.698464772473222, 0.4422965892116879},
-                               {4.154056894213615, 0.4688930680324417},
-                               {4.636262062662657, 0.4955230096710074},
-                               {5.145114724024852, 0.5221883831886691},
-                               {5.680651300567963, 0.5488911717891486},
-                               {6.242910205181583, 0.5756333736530594},
-                               {6.831931856781384, 0.6024170027954671},
-                               {7.447758696575838, 0.6292440899340502},
-                               {8.09043520521219, 0.6561166833776932},
-                               {8.760007920819465, 0.6830368499335451},
-                               {9.456525457966828, 0.7100066758308241},
-                               {10.18003852755672, 0.7370282676660339},
-                               {10.93059995767296, 0.7641037533676859},
-                               {11.70826471540523, 0.7912352831858124},
-                               {12.5130899296724, 0.8184250306993499},
-                               {13.34513491506818, 0.8456751938532073},
-                               {14.20446119675403, 0.8729879960168208},
-                               {15.09113253642537, 0.9003656870720292},
-                               {16.00521495937847, 0.9278105445271643},
-                               {16.94677678270679, 0.9553248746614917},
-                               {17.91588864465706, 0.9829110137007926},
-                               {18.91262353517667, 1.01057132902482},
-                               {19.93705682768588, 1.038308220409159},
-                               {20.98926631210941, 1.066124121303237},
-                               {22.0693322292045, 1.094021500145207},
-                               {23.17733730622346, 1.122002861716167},
-                               {24.31336679395113, 1.15007074853609},
-                               {25.47750850515957, 1.17822774230309},
-                               {26.6698528545242, 1.20647646537708},
-                               {27.89049290004778, 1.234819582312125},
-                               {29.13952438604095, 1.263259801437972},
-                               {30.4170457877105, 1.291799876493899},
-                               {31.72315835740869, 1.320442608317681},
-                               {33.05796617259991, 1.349190846591676},
-                               {34.42157618560343, 1.378047491649795},
-                               {35.81409827517415, 1.407015496346448},
-                               {37.23564529998588, 1.436097867993353},
-                               {38.68633315408532, 1.465297670364799},
-                               {40.16628082438788, 1.494618025776432},
-                               {41.67561045029016, 1.524062117241149},
-                               {43.21444738547788, 1.553633190703724},
-                               {44.78292026201128, 1.583334557362363},
-                               {46.38116105677503, 1.613169596076766},
-                               {48.00930516038326, 1.643141755871362},
-                               {49.66749144863559, 1.67325455853451},
-                               {51.35586235662428, 1.703511601322361},
-                               {53.07456395559839, 1.733916559770406},
-                               {54.82374603269579, 1.764473190618135},
-                               {56.60356217365987, 1.795185334854757},
-                               {58.41416984866382, 1.826056920890234},
-                               {60.25573050137191, 1.85709196785874},
-                               {62.12840964137386, 1.888294589062953},
-                               {64.03237694013582, 1.919668995564201},
-                               {65.96780633061908, 1.951219499929162},
-                               {67.93487611072592, 1.98295052013875},
-                               {69.93376905074039, 2.014866583670929},
-                               {71.9646725049416, 2.046972331764233},
-                               {74.02777852757615, 2.079272523874329},
-                               {76.12328399338745, 2.111772042333272},
-                               {78.25139072291041, 2.144475897222693},
-                               {80.41230561275184, 2.177389231474337},
-                               {82.6062407710895, 2.21051732620899},
-                               {84.83341365863637, 2.243865606330362},
-                               {87.09404723533066, 2.277439646385225},
-                               {89.38837011302772, 2.311245176709602},
-                               {91.71661671448609, 2.345288089874654},
-                               {94.07902743895778, 2.379574447450897},
-                               {96.47584883471066, 2.41411048711277},
-                               {98.90733377883214, 2.448902630099688},
-                               {101.3737416646834, 2.483957489059988},
-                               {103.8753385973973, 2.519281876298236},
-                               {106.4123975978368, 2.554882812454203},
-                               {108.9851988154589, 2.590767535637621},
-                               {111.5940297505536, 2.626943511051393},
-                               {114.2391854863636, 2.663418441132556},
-                               {116.9209689316168, 2.700200276245322},
-                               {119.6396910740445, 2.73729722596323},
-                               {122.3956712454915, 2.774717770979608},
-                               {125.189237399269, 2.812470675688552},
-                               {128.0207264004418, 2.850565001482234},
-                               {130.8904843297925, 2.889010120814019},
-                               {133.7988668022529, 2.927815732081122},
-                               {136.7462393006521, 2.966991875383191},
-                               {139.7329775256874, 3.006548949222304},
-                               {142.759467763093, 3.046497728208849},
-                               {145.8261072690484, 3.08684938184865},
-                               {148.9333046749477, 3.127615494490461},
-                               {152.0814804127326, 3.168808086522331},
-                               {155.2710671620838, 3.210439636907599},
-                               {158.5025103208623, 3.25252310716648},
-                               {161.7762685003008, 3.29507196691414},
-                               {165.092814046561, 3.338100221076514},
-                               {168.4526335904016, 3.381622438918201},
-                               {171.8562286268402, 3.425653785027162},
-                               {175.3041161268443, 3.470210052418758},
-                               {178.7968291832567, 3.515307697927283},
-                               {182.3349176933386, 3.560963880085994},
-                               {185.9189490805198, 3.607196499697949},
-                               {189.5495090581641, 3.654024243333757},
-                               {193.2272024383993, 3.701466630010565},
-                               {196.9526539893333, 3.749544061332636},
-                               {200.7265093442698, 3.79827787540431},
-                               {204.5494359668643, 3.847690404859263},
-                               {208.4221241765241, 3.897805039384193},
-                               {212.3452882387537, 3.948646293160198},
-                               {216.3196675255918, 4.000239877687697},
-                               {220.3460277517803, 4.052612780516117},
-                               {224.4251622928536, 4.105793350456135},
-                               {228.5578935919482, 4.159811389922316},
-                               {232.7450746628161, 4.214698255126153},
-                               {236.9875906972909, 4.27048696492881},
-                               {241.2863607863087, 4.327212319259251},
-                               {245.6423397645486, 4.384911028115464},
-                               {250.0565201898382, 4.443621852294881},
-                               {254.5299344696856, 4.503385757145375},
-                               {259.0636571486737, 4.564246080797834},
-                               {263.6588073720075, 4.62624871853364},
-                               {268.3165515422674, 4.689442325160785},
-                               {273.0381061884222, 4.75387853753741},
-                               {277.8247410684369, 4.819612219670748},
-                               {282.6777825294121, 4.88670173317499},
-                               {287.5986171521681, 4.95520923627262},
-                               {292.5886957106057, 5.025201014998875},
-                               {297.6495374801001, 5.096747850818959},
-                               {302.7827349337207, 5.169925429530114},
-                               {307.9899588703066, 5.24481479708569},
-                               {313.2729640245108, 5.321502868882359},
-                               {318.6335952160018, 5.400083000160843},
-                               {324.0737941032713, 5.480655626428459},
-                               {329.5956066171773, 5.563328984392797},
-                               {335.2011911607244, 5.648219925738174},
-                               {340.8928276750128, 5.735454838322556},
-                               {346.67292768718, 5.825170692111637},
-                               {352.5440454750781, 5.917516230461636},
-                               {358.5088905060044, 6.012653331443834},
-                               {364.5703413339042, 6.11075856888457},
-                               {370.7314611721156, 6.212025008974579},
-                               {376.9955153982821, 6.3166642859827},
-                               {383.3659912962149, 6.424909010223284},
-                               {389.8466203984501, 6.537015573515938},
-                               {396.4414038658405, 6.653267432708673},
-                               {403.1546414304768, 6.773978971401204},
-                               {409.9909645404044, 6.899500065148414},
-                               {416.9553744854671, 7.030221508018704},
-                               {424.0532864618092, 7.166581500960829},
-                               {431.2905807597857, 7.309073458588748},
-                               {438.6736625522015, 7.458255465736875},
-                               {446.2095321389017, 7.614761815679939},
-                               {453.9058680004354, 7.779317198652938},
-                               {461.7711256711422, 7.952754297479251},
-                               {469.8146563226232, 8.136035809504971},
-                               {478.0468501423313, 8.330282285006321},
-                               {486.4793112320975, 8.536807704774064},
-                               {495.1250730378306, 8.75716549697966},
-                               {503.998866560597, 8.993208849137494},
-                               {513.1174582695169, 9.247170924190588},
-                               {522.5000815040654, 9.521773309539423},
-                               {532.1689954739326, 9.820375353805916},
-                               {542.1502218601211, 10.14718412234403},
-                               {552.4745341908956, 10.50755665060706},
-                               {563.1788163012253, 10.9084470923048},
-                               {574.3079759021866, 11.35908954153151},
-                               {585.9177225644977, 11.87208048166133},
-                               {598.0787485964511, 12.4651733647271},
-                               {610.8833037499799, 13.16442107333889},
-                               {624.4561163494692, 14.01006813896018},
-                               {638.9738566152255, 15.06861784527307},
-                               {654.70324721585, 16.46066092751913},
-                               {672.0863369696656, 18.43694351949129},
-                               {691.9752748484226, 21.65051648474522},
-                               {716.5834864211865, 28.8014926391697} }; // nodes[ row ][ 0 = roots, 1 = weights ] 
-    // pre-calculate the needed form factors, for efficency
-    double hF[Nquad]; // the Fermi form factor
-    double hGT[Nquad]; // the Gamow-Teller form factor
-    for (int i=0; i<Nquad; i++)
-    {
-      double q = nodes[i][0]; // set the transfer momentum [MeV] via the impending GLQ
-      double qsq = q*q; // q squared
-      double mprosq = mpro*mpro; // the proton mass squared
-      double mpionsq = mpion*mpion; // the pion mass squared
-      double gV = g0V/pow((1.0 + (qsq/(cutoffV*cutoffV))),2); // from Equation (4.3)
-      double gA = g0A/pow((1.0 + (qsq/(cutoffA*cutoffA))),2); // " " "
-      double gP = (2*mpro*gA)/(qsq + mpionsq); // " " "
-      double gM = magmom*gV; // " " "
-      hF[i] = -1*gV*gV; // from Equation (4.2)
-      hGT[i] = (gA*gA) - ((gA*gP*qsq)/(3*mpro)) + (pow(gP*qsq,2)/(12*mprosq)) + ((gM*gM*qsq)/(6*mprosq)); // " " "
-      //hGT[i] = (gA*gA)*( 1.0 - (2.0/3.0)*(qsq/(qsq + mpionsq)) + (1.0/3.0)*pow((qsq/(qsq + mpionsq)),2) ) + (pow(magmom,2)/(6.0*mprosq))*pow(gV,2)*qsq; // also works, le algebra
-    }
-    // create the TBME of M0nu
-    for (auto& itmat : M0nu_TBME.TwoBody.MatEl)
-    {
-      int chbra = itmat.first[0]; // grab the channel count from auto
-      int chket = itmat.first[1]; // " " " " " "
-      TwoBodyChannel& tbc_bra = modelspace.GetTwoBodyChannel(chbra); // grab the two-body channel
-      TwoBodyChannel& tbc_ket = modelspace.GetTwoBodyChannel(chket); // " " " " "
-      int nbras = tbc_bra.GetNumberKets(); // get the number of bras
-      int nkets = tbc_ket.GetNumberKets(); // get the number of kets
-      double J = tbc_bra.J; // NOTE: by construction, J := J_ab == J_cd := J'
-      double Jhat = sqrt(2*J + 1); // the hat factor of J
-      for (int ibra=0; ibra<nbras; ibra++)
-      {
-        Ket& bra = tbc_bra.GetKet(ibra); // get the final state = <ab| == <a_f,b_f|
-        int ia = bra.p; // get the integer label a
-        int ib = bra.q; // get the integer label b
-        Orbit& oa = modelspace.GetOrbit(ia); // get the <a| state orbit
-        Orbit& ob = modelspace.GetOrbit(ib); // get the <b| state prbit
-        for (int iket=0; iket<nkets; iket++)
-        {
-          Ket& ket = tbc_ket.GetKet(iket); // get the initial state = |cd> == |a_i,b_i>
-          int ic = ket.p; // get the integer label c
-          int id = ket.q; // get the integer label d
-          Orbit& oc = modelspace.GetOrbit(ic); // get the |c> state orbit
-          Orbit& od = modelspace.GetOrbit(id); // get the |d> state orbit
-          // initialize the matrix element to zero
-          double MF = 0;
-          double MGT = 0;
-          int na = oa.n; // this is just...
-          int nb = ob.n;
-          int nc = oc.n;
-          int nd = od.n;
-          int la = oa.l;
-          int lb = ob.l;
-          int lc = oc.l;
-          int ld = od.l;
-          double ja = oa.j2/2.0;
-          double jb = ob.j2/2.0;
-          double jc = oc.j2/2.0;
-          double jd = od.j2/2.0; // ...for convenience
-cout<<J<<" | "<<ia<<", "<<ib<<", "<<ic<<", "<<id<<" || "
-<<na<<", "<<nb<<", "<<nc<<", "<<nd<<" | "
-<<la<<", "<<lb<<", "<<lc<<", "<<ld<<" | "
-<<ja<<", "<<jb<<", "<<jc<<", "<<jd<<" |=|  ";
-          int eps_ab = 2*na + la + 2*nb + lb; // for conservation of energy in the Moshinsky brackets
-          int eps_cd = 2*nc + lc + 2*nd + ld; // ...likewise
-          double sumglqF = 0; // for the GLQ integration below (F)
-          double sumglqFas = 0; // ...anti-symmetric part (F)
-          double sumglqGT = 0; // (GT)
-          double sumglqGTas = 0; // (GT)
-          //double sumGLQ = 0; // (F+GT)
-          //double sumGLQas = 0; // (F+GT)
-          for (int i=0; i<Nquad; i++)
-          {
-            double q = nodes[i][0]; // set the transfer momentum [MeV] via the impending GLQ
-            double sumB = 0; // for the pure Bessel's Matrix Elemets (BMEs)
-            double sumBas = 0; // ...anti-symmetric part
-            double sumBSdS = 0; // for the scalar product of the Bessel's functions and Sigma dot Sigma (SdS)
-            double sumBSdSas = 0; // ...anti-symmetric part
-            for (int S=0; S<=1; S++) // sum over total spin...
-            {
-              for (int L = abs(la-lb); L <= la+lb; L++) // ...and sum over angular momentum coupled to l_{a_f} and l_{b_f}, NOTE: get same result if used l_{a_i} and l_{b_i} (good)
-              {
-                double tempLS = (2*L + 1)*(2*S + 1); // just for efficiency, only used in the three lines below
-                double normab = sqrt(tempLS*(2*ja + 1)*(2*jb + 1)); // normalization factor for the 9j-symbol out front
-                double nNJab = normab*modelspace.GetNineJ(la,lb,L,0.5,0.5,S,ja,jb,J); // the normalized 9j-symbol out front
-                double normcd = sqrt(tempLS*(2*jc + 1)*(2*jd + 1)); // normalization factor for the second 9j-symbol
-                double nNJcd = normcd*modelspace.GetNineJ(lc,ld,L,0.5,0.5,S,jc,jd,J); // the second normalized 9j-symbol
-                double nNJdc = normcd*modelspace.GetNineJ(ld,lc,L,0.5,0.5,S,jd,jc,J); // ...anti-symmetric part
-                double sumMT = 0; // for the Moshinsky-transformed relative BMEs (RBMEs)
-                double sumMTas = 0; // ...anti-symmetric part
-                double tempmaxnr = floor((eps_ab - L)/2.0); // just for the limits below
-                double tempmaxnpr = floor((eps_cd - L)/2.0); // " " " " "
-                for (int nr = 0; nr <= tempmaxnr; nr++)
-                {
-                  double tempmaxNcom = tempmaxnr - nr; // just for the limits below
-                  for (int Ncom = 0; Ncom <= tempmaxNcom; Ncom++)
-                  {
-                    int tempminlr = ceil((eps_ab - L)/2.0) - (nr + Ncom); // just for the limits below
-                    int tempmaxlr = floor((eps_ab + L)/2.0) - (nr + Ncom); // " " " " "
-                    for (int lr = tempminlr; lr <= tempmaxlr; lr++)
-                    {
-                      int Lam = eps_ab - 2*(nr + Ncom) - lr; // via Equation () of my thesis
-                      for (int npr = 0; npr <= tempmaxnpr; npr++) // npr = n'_r in my latex notation
-                      {
-                        double RBME; // calculate via functions below this Operator
-                        if (src == argstr or src == cdbstr or src == masstr)
-                        {
-                          RBME = CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,0,0)
-                            - 2*cc*CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,0,aa)
-                            + 2*cc*bb*CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,2,aa)
-                            + cc*cc*CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,0,2.0*aa)
-                            - 2*bb*cc*cc*CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,2,2.0*aa)
-                            + cc*cc*bb*bb*CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,4,2.0*aa); // testing...
-                        }
-                        else
-                        {
-                          RBME = CPrbmeGen(modelspace,0,q,nr,lr,npr,lr,0,0);
-                          //RBME = CPrbmeGLQ(modelspace,Nquad,nodes,q,nr,lr,npr,lr,0,0);
-                        }
-                        double Df = modelspace.GetMoshinsky(Ncom,Lam,nr,lr,na,la,nb,lb,L); // Ragnar has -- double mosh_ab = modelspace.GetMoshinsky(N_ab,Lam_ab,n_ab,lam_ab,na,la,nb,lb,Lab);
-                        double Di =  modelspace.GetMoshinsky(Ncom,Lam,npr,lr,nc,lc,nd,ld,L);
-                        double asDi = modelspace.GetMoshinsky(Ncom,Lam,npr,lr,nd,ld,nc,lc,L); // ...anti-symmetric part
-                        double temphat = 1.0/sqrt(2*lr + 1); // just for the several lines below
-                        double tempD = Df*Di; // " " " " " "
-                        double tempDas = Df*asDi; // " " " " " "
-                        sumMT += temphat*tempD*RBME; // perform the Talmi-Moshinsky transformation
-                        sumMTas += temphat*tempDas*RBME; // ...anti-symmetric part
-                      } // end of for-loop over: npr
-                    } // end of for-loop over: lr
-                  } // end of for-loop over: Ncom
-                } // end of for-loop over: nr
-                double temprod = nNJab*nNJcd*sumMT; // just for efficiency, only used in the lines below
-                double temprodas = nNJab*nNJdc*sumMTas; // ...anti-symmetric part
-                int tempSeval = 2*S*(S + 1) - 3; // eigenvalue of S, only used in the lines below
-                sumB += temprod; // this completes Equation (4.64), modulo Jhat
-                sumBas += temprodas; // ...anti-symmetric part
-                sumBSdS += tempSeval*temprod; // this completes Equation (4.49), modulo Jhat
-                sumBSdSas += tempSeval*temprodas; // ...anti-symmetric part
-              } // end of for-loop over: L
-            } // end of for-loop over: S
-            //
-            double integrandF = (q/(q + Ediff))*(hF[i]*sumB); // Fermi part only
-            double integrandFas = (q/(q + Ediff))*(hF[i]*sumBas); // ...anti-symmetric part
-            double integrandGT = (q/(q + Ediff))*(hGT[i]*sumBSdS); // Gamow-Teller part only
-            double integrandGTas = (q/(q + Ediff))*(hGT[i]*sumBSdSas); // ...anti-symmetric part
-            //
-            /*
-            double qsq = pow(q,2);
-            double Enu = sqrt(qsq + mnusq);
-            double integrandF = (qsq/(Enu + Ediff))*((hF[i]/Enu)*sumB);
-            double integrandFas = (qsq/(Enu + Ediff))*((hF[i]/Enu)*sumBas);
-            double integrandGT = (qsq/(Enu + Ediff))*((hGT[i]/Enu)*sumBSdS);
-            double integrandGTas = (qsq/(Enu + Ediff))*((hGT[i]/Enu)*sumBSdSas);
-            */
-            //double integrand = (q/(q + Ediff))*(hF[i]*sumB + hGT[i]*sumBSdS); // F+GT full integrand
-            //double integrandas = (q/(q + Ediff))*(hF[i]*sumBas + hGT[i]*sumBSdSas); // ...anti-symmetric part
-            sumglqF += nodes[i][1]*integrandF; // perform the GLQ integration (F)
-            sumglqFas += nodes[i][1]*integrandFas; // ...anti-symmetric part (F)
-            sumglqGT += nodes[i][1]*integrandGT; // perform the GLQ integration (GT)
-            sumglqGTas += nodes[i][1]*integrandGTas; // ...anti-symmetric part (GT)
-            //sumGLQ += nodes[i][1]*integrand; // perform the GLQ integration (F+GT)
-            //sumGLQas += nodes[i][1]*integrandas; // ...anti-symmetric part (F+GT)
-          } // end of for-loop wrt: GLQ
-          double scale = 1.0; // global factor to compare with JE
-          double tempfact = scale*prefact*Jhat; // just for the lines below
-          double tempnorm = cpNorm(ia,ib)*cpNorm(ic,id); // just for the lines below
-          double temphase = modelspace.phase(jc + jd - J); // just for the lines below
-          MF = tempnorm*tempfact*(sumglqF - temphase*sumglqFas); // see Equation () of my thesis, (F)
-          MGT = tempnorm*tempfact*(sumglqGT - temphase*sumglqGTas); // see Equation () of my thesis, (GT)
-          double Mtbme = MF + MGT; // see Equation () of my thesis
-cout<<MF<<",  "<<MGT<<",  "<<Mtbme<<endl;
-          M0nu_TBME.TwoBody.SetTBME(chbra,chket,ibra,iket,Mtbme); // set the two-body matrix elements (TBME) to M_ab
-        } // end of for-loop over: iket
-      } // end of for-loop over: ibra
-    } // end of for-loop over: auto
-    return M0nu_TBME;
-  }
- 
-
-/// testing...
-/// mm = 0,2,4
-/// pp = 0,a,2a
-  double CPrbmeGen(ModelSpace& modelspace, double rho, double x, int n, int l, int np, int lp, int mm, double pp)
-  {
-    x *= SQRT2; // this is to stay consistent with r_{rel} = (r_1 - r_2)/SQRT2 in Moshinksy brackets
-    double b = 1.0/sqrt(M_NUCLEON*modelspace.GetHbarOmega()); // the oscillator length [MeV^-1], from Equation (1.95) of my thesis
-    double bisq = 1.0/(b*b); // the inverse squared oscillator length
-    double yolo = (x*x)/(4.0*(pp + bisq)); // commonly reoccuring argument in the RBMEs
-    double normy = (1.0/pow(2,rho+1))*(1.0/pow(b,3))*sqrt((PI*gsl_sf_fact(n)*gsl_sf_fact(np))/(gsl_sf_gamma(n + l + 1.5)*gsl_sf_gamma(np + lp + 1.5))); // the normalization factor
-    double sum = 0; // initialize the double sum over k, k'
-    for (int k=0; k<=n; k++)
-    {
-      for (int kp=0; kp<=np; kp++)
-      {
-        int kappa = ((l + lp - rho + mm)/2.0) + k + kp; // rho should be divisible by 2! >:|
-        double llkk = l + lp + 2*k + 2*kp;
-        double hahaha = pow(b,-llkk)*pow((pp + bisq),-(llkk + 3 + mm)/2.0);
-        double one = modelspace.phase(k + kp)/(gsl_sf_fact(k)*gsl_sf_fact(kp));
-        double bci = gsl_sf_gamma(n + l + 1.5)/(gsl_sf_gamma(n - k + 1.0)*gsl_sf_gamma(l + k + 1.5)); // the first binomial coefficient, via taking ratios of Gamma functions
-        double bcj = gsl_sf_gamma(np + lp + 1.5)/(gsl_sf_gamma(np - kp + 1.0)*gsl_sf_gamma(lp + kp + 1.5)); // the second binomial coefficient, " " " " " "
-        double two = bci*bcj;
-        double three = gsl_sf_fact(kappa);
-        double four = gsl_sf_laguerre_n(kappa,rho+0.5,yolo); // from GSL -- L^a_n(x) = gsl_sf_laguerre_n(const int n, const double a, const double x)
-        sum += hahaha*one*two*three*four; // perform the summation
-      }
-    }
-    double rbme = normy*pow(b*x,rho)*exp(-yolo)*sum; // see Equation (4.61) in my thesis
-    return rbme;
-  }
-
-/////////////// end of M0v functions from Charlie //////////////////////////
-
-
-
 
 
  // Orbital angular momentum squared L^2 in the relative coordinate.

@@ -9,9 +9,11 @@
 #include <gsl/gsl_math.h>
 #include <math.h>
 
+/*
 #ifndef SQRT2
   #define SQRT2 1.4142135623730950488L
 #endif
+*/
 
 using namespace std;
 

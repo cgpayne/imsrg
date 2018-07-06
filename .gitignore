@@ -1,0 +1,14 @@
+src/imsrg++
+src/tmp*
+src/.*.swp
+src/*.o
+src/*.so
+src/*.gz
+src/*_rs.*
+src/*_cp.*
+work/compiled/CPops
+work/Mvbb_results/*
+!work/Mvbb_results/zcompileresults.sh
+work/*output*/*
+!work/output_runCPops/*
+!work/set_output_CP.sh

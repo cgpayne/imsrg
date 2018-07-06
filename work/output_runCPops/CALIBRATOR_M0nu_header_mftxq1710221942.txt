@@ -1,0 +1,36 @@
+ decay type             =  T (lit)
+ A                      =  76
+ E_closure              =  7.72 [MeV]
+ emax                   =  4
+ hw                     =  10 [MeV]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ integration method     =  PSH
+ dr |  GSL limit        =  10000
+ dr |  abstol           =  1e-7
+ dr |  reltol           =  1e-5
+ dq || GSL limit        =  10000
+ dq || abstol           =  1e-7
+ dq || reltol           =  1e-4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ reduced?               =  No
+ global pre-factor      =  2
+ R = r_0*A^(1/3)        =  0.0257592170738 [fm]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ srchit                 =  0
+ are SRCs on?           =  No
+ SRCs                   =  none
+ a                      =  0 [fm^-2]
+ b                      =  0 [fm^-2]
+ c                      =  0 [unitless]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ m_proton               =  938.27231 [MeV]
+ m_pion                 =  139.57 [MeV]
+ \mu_p - \mu_n          =  3.706 [\mu_N]
+ g_{V,0}                =  1 [unitless]
+ g_{A,0}                =  1.27 [unitless]
+ cutoff_V               =  850 [MeV]
+ cutoff_A               =  1086 [MeV]
+ r_0 in R               =  1.2 [fm]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ HBARC                  =  197.327503 [MeV*fm]
+ M_NUCLEON              =  939 [MeV]

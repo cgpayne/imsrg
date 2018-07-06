@@ -1,6 +1,7 @@
 #ifndef HartreeFock_h
 #define HartreeFock_h
 
+#include "Constants.hh"
 #include "ModelSpace.hh"
 #include "Operator.hh"
 #include "IMSRGProfiler.hh"

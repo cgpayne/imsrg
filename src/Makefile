@@ -73,7 +73,8 @@ endif
 
 ifeq ($(THEHOST),oak)
 #  FLAGS += -DOLD_BOOST
-  FLAGS += -DOPENBLAS_NOUSEOMP
+#  FLAGS += -DOPENBLAS_NOUSEOMP=1
+  FLAGS += -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl
 endif
 
 ifeq ($(HDF5),on)
@@ -120,7 +121,7 @@ install: splashscreen
 
 OBJ = ModelSpace.o TwoBodyME.o ThreeBodyME.o Operator.o  ReadWrite.o\
       HartreeFock.o imsrg_util.o Generator.o IMSRGSolver.o AngMom.o\
-      boost_src/gzip.o boost_src/zlib.o  IMSRGProfiler.o 
+      boost_src/gzip.o boost_src/zlib.o  IMSRGProfiler.o NDBD.o
 
 mysrg: main.cc $(OBJ)
 	$(CC) $^ -o $@ $(INCLUDE) $(LIBS) $(FLAGS) 
@@ -148,7 +149,7 @@ pyIMSRG.so: $(OBJ)  pyIMSRG.o
 pyIMSRG.o: pyIMSRG.cc
 	$(CC) -c  $(FLAGS) $(INCLUDE) $(PYTHONFLAGS) $(LIBS)  $^ -o $@
 
-imsrg++: imsrg++.cc libIMSRG.so Parameters.hh
+imsrg++: imsrg++.cc libIMSRG.so Parameters.hh Constants.hh
 	$(CC) $(INCLUDE) $< -o $@ $(FLAGS) -L$(PWD) -lIMSRG $(LIBS)
 
 clean:

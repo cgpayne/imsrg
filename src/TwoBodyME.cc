@@ -1,9 +1,11 @@
 
 #include "TwoBodyME.hh"
 #include "AngMom.hh"
+/*
 #ifndef SQRT2
   #define SQRT2 1.4142135623730950488
 #endif
+*/
 
 // destructor defined for debugging purposes
 TwoBodyME::~TwoBodyME()

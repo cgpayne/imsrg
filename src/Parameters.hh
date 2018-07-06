@@ -67,7 +67,7 @@ map<string,double> Parameters::double_par = {
   {"BetaCM",               0},  // Prefactor for Lawson-Glockner term
   {"hwBetaCM",            -1},  // Oscillator frequency used in the Lawson-Glockner term. Negative value means use the frequency of the basis
   {"eta_criterion",     1e-6},  // Threshold on ||eta|| for convergence in the flow
-
+  {"gapE",                 0},  // energy [MeV] to artificially shift shells 0 through "gapShell" by, put in by (CP)
 };
 
 map<string,int> Parameters::int_par = {
@@ -82,6 +82,7 @@ map<string,int> Parameters::int_par = {
   {"file3e1max",	12},
   {"file3e2max",	24},
   {"file3e3max",	12},
+  {"gapShell",    -1},  // see description of "gapE" above, put in by (CP)
 };
 
 map<string,vector<string>> Parameters::vec_par = {

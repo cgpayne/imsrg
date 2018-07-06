@@ -3,6 +3,7 @@
 #define ReadWrite_h 1
 #define BOOST_IOSTREAMS_NO_LIB 1
 
+#include "Constants.hh"
 #include <map>
 #include <string>
 #include "Operator.hh"
@@ -66,6 +67,11 @@ class ReadWrite
    void WriteTwoBody_Oslo(string filename, Operator& Hbare);
    void ReadTwoBodyEngel(string filename, Operator& Op);
    void ReadTwoBodyEngel_from_stream(istream& infile, Operator& Op);
+   void ReadTwoBodyNewEngel(string filename, Operator& Op); // put in by CP, for new_mod.op
+   void ReadTwoBodyNewEngel_from_stream(istream& infile, Operator& Op); // put in by CP, for new_mod.op
+   void ReadTwoBodyMihai(string filename, Operator& Op); // put in by CP, for vbbGT_N10_full_48Ca_E2.op
+   void removeSubstr(string& s, string& p); // put in by CP
+   void WriteM0nu(ModelSpace& ms, Operator& M0nu, string dirname, string opname); // put in by CP
    void ReadRelCMOpFromJavier( string statefile, string MEfile, Operator& Op);
    void SetLECs(double c1, double c3, double c4, double cD, double cE);
    array<double,5> GetLECs(){return LECs;};

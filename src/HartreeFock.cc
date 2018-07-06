@@ -8,11 +8,13 @@
 #include <gsl/gsl_math.h> // for M_SQRTPI
 #include <omp.h>
 
+/*
 #ifndef SQRT2
   #define SQRT2 1.4142135623730950488
 #endif
 #define HBARC 197.3269718 // hc in MeV * fm
 #define M_NUCLEON 938.9185 // average nucleon mass in MeV
+*/
 
 
 using namespace std;

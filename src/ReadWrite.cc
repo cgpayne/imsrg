@@ -22,15 +22,14 @@
 #define LINESIZE 496
 //#define HEADERSIZE 500
 #define HEADERSIZE 255
+/*
 #ifndef SQRT2
   #define SQRT2 1.4142135623730950488
 #endif
 #ifndef HBARC
    #define HBARC 197.3269718 // hc in MeV * fm
 #endif
-#ifndef M_NUCLEON
-   #define M_NUCLEON 938.9185
-#endif
+*/
 
 using namespace std;
 #ifndef NO_HDF5
@@ -3927,6 +3926,138 @@ void ReadWrite::ReadTwoBodyEngel_from_stream( istream& infile, Operator& Op)
     Op.TwoBody.SetTBME_J(J,a,b,c,d,tbme);
   }
 }
+
+// put in by CP
+// primarily for new_mod.op
+void ReadWrite::ReadTwoBodyNewEngel(string filename, Operator& Op)
+{
+  if ( filename.substr( filename.find_last_of(".")) == ".gz")
+  {
+    ifstream infile(filename, ios_base::in | ios_base::binary);
+    boost::iostreams::filtering_istream zipstream;
+    zipstream.push(boost::iostreams::gzip_decompressor());
+    zipstream.push(infile);
+    ReadTwoBodyNewEngel_from_stream(zipstream, Op);
+  }
+  else
+  {
+    ifstream infile(filename);
+    ReadTwoBodyNewEngel_from_stream(infile, Op);
+  }
+}
+
+// put in by CP
+// primarily for new_mod.op
+void ReadWrite::ReadTwoBodyNewEngel_from_stream( istream& infile, Operator& Op)
+{
+  int a,b,c,d,J;
+  double tbme;
+  ModelSpace* modelspace = Op.GetModelSpace();
+  int norb = modelspace->GetNumberOrbits();
+  while( infile >> a >> b >> c >> d >> J >> tbme ) // old
+  //while( infile >> d >> c >> b >> a >> J >> tbme )
+  {
+    a = 2*a-2; // old: a = a-2
+    b = 2*b-2; // old: b = b-2
+    c = 2*c-1; // old: c = c-1
+    d = 2*d-1; // old: d = d-1
+    if (a >= norb) break;
+    if (b >= norb or c>=norb or d>=norb or abs(tbme)<2e-7) continue;
+    Op.TwoBody.SetTBME_J(J,a,b,c,d,tbme); // old: standard
+    Op.TwoBody.SetTBME_J(J,c-1,d-1,a+1,b+1,tbme); // this is since JE doesn't print repeats, but we do!
+  }
+}
+
+// put in by CP
+// primarily for vbbGT_N10_full_48Ca_E2.dat
+void ReadWrite::ReadTwoBodyMihai(string filename, Operator& Op)
+{
+  int a,b,c,d,J;
+  int idk1,idk2,J2;
+  long int key;
+  string keystr;
+  double tbme;
+  ModelSpace* modelspace = Op.GetModelSpace();
+  int norb = modelspace->GetNumberOrbits();
+  int Jmax = modelspace->GetTwoBodyJmax();
+  ifstream infile(filename);
+  long int tic = 0;
+  while( infile >> idk1 >> idk2 >> J2 >> key >> tbme )
+  {
+  tic++;
+  cout<<tic<<" | ";
+    J = J2/2.0;
+    if (key < 10000000)
+    {
+      keystr = "0" + to_string(key);
+      cout<<"if-str "<<keystr<<" | ";
+    }
+    else
+    {
+      keystr = to_string(key);
+      cout<<"else-str"<<keystr<<" | ";
+    }
+    stringstream kk[8];
+    string ks[8];
+    for (int i=0; i < 8; i++)
+    {
+      kk[i] << keystr[i];
+      ks[i] = kk[i].str();
+    }
+    a = 2*(10*stoi(ks[0]) + stoi(ks[1])) - 2;
+    b = 2*(10*stoi(ks[2]) + stoi(ks[3])) - 2;
+    c = 2*(10*stoi(ks[4]) + stoi(ks[5])) - 1;
+    d = 2*(10*stoi(ks[6]) + stoi(ks[7])) - 1;
+    cout<<J<<" "<<a<<" "<<b<<" "<<c<<" "<<d<<endl;
+    if (idk1==1 and idk2==1 and J>=Jmax) break;
+    if (a>=norb or b>=norb or c>=norb or d>=norb or abs(tbme)<=1e-6) continue;
+    Op.TwoBody.SetTBME_J(J,a,b,c,d,tbme);
+    Op.TwoBody.SetTBME_J(J,c-1,d-1,a+1,b+1,tbme);
+  }
+}
+
+// put in by CP
+// takes in a string s, removes the substring p
+void ReadWrite::removeSubstr(string& s, string& p)
+{ 
+  string::size_type n = p.length();
+  for (string::size_type i = s.find(p); i != string::npos; i = s.find(p))
+  {
+    s.erase(i,n);
+  }
+}
+
+// put in by CP
+// this is the specific way to write an M0nu operator to file
+// this will associate a (hopefully) unique barcode to both the M0nu_header.txt and the TBME file
+// dirname = the directory to output the M0nu TBME output file to
+// opname = the base of the WriteOperatorHuman output file name
+void ReadWrite::WriteM0nu(ModelSpace& ms, Operator& M0nu, string dirname, string opname)
+{
+  stringstream ssopnames(opname);
+  string segment;
+  vector<string> seglist;
+  while(getline(ssopnames,segment,'_'))
+  {
+    seglist.push_back(segment);
+  }
+  string barcode = "_" + seglist.at(6); // the unique barcode for M0nu_adpt_*
+  string tempname = opname;
+  string::size_type nb = barcode.length();
+  for (string::size_type i = tempname.find(barcode); i != string::npos; i = tempname.find(barcode))
+  {
+    tempname.erase(i,nb);
+  }
+  string Estr = "_emax_"+std::to_string(ms.GetEmax());
+  string Astr = "_A_"+std::to_string(ms.GetTargetMass());
+  stringstream HWstream;
+  HWstream<<fixed<<setprecision(2)<<ms.GetHbarOmega();
+  string HWstr = "_hw_"+HWstream.str();
+  cout<<"printing M0nu TBMEs to file..."<<endl;
+  WriteOperatorHuman(M0nu, dirname+tempname+Estr+Astr+HWstr+barcode+".op");
+  cout<<"...done printing M0nu TBMEs to file"<<endl<<endl<<endl;
+}
+
 /*
 void ReadWrite::ReadRelCMOpFromJavier( string statefilename, string MEfilename, Operator& Op)
 {

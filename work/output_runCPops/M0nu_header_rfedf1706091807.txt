@@ -1,0 +1,29 @@
+ integration method     =  CP
+ decay type             =  GT
+ reduced?               =  No
+ E_closure              =  7.72 [MeV]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ srchit                 =  1
+ are SRCs on?           =  Yes
+ SRCs                   =  Argonne
+ a                      =  61911.6480699 [MeV^2]
+ b                      =  56460.3079883 [MeV^2]
+ c                      =  0.92 [unitless]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ hw                     =  10 [MeV]
+ emax                   =  2
+ A                      =  76
+ M_NUCLEON              =  939
+ HBARC                  =  197.327503
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ m_proton               =  938.27231 [MeV]
+ m_pion                 =  139.57 [MeV]
+ mu_p - mu_n            =  3.706 [mu_N]
+ g_{V,0}                =  1 [unitless]
+ g_{A,0}                =  1.27 [unitless]
+ cutoff_V               =  850 [MeV]
+ cutoff_A               =  1086 [MeV]
+ r_0 in R               =  1.2 [fm]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ R = r_0*A^(1/3)        =  0.0257591477307 [fm]
+ global pre-factor      =  2

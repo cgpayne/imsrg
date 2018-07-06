@@ -1312,8 +1312,8 @@ double ModelSpace::GetMoshinsky( int N, int Lam, int n, int lam, int n1, int l1,
    double mosh = AngMom::Moshinsky(N,Lam,n,lam,n1,l1,n2,l2,L);
 //   #pragma omp atomic
    MoshList[key] = mosh;
+   //cout<<"grab Mosh! | Ncom = "<<N<<", Lam = "<<Lam<<", nr = "<<n<<", lr = "<<lam<<", na = "<<n1<<", la = "<<l1<<", nb = "<<n2<<", lb = "<<l2<<", L = "<<L<<"; mosh = "<<mosh<<endl; // CP, debugging
    return mosh * phase_mosh;
-
 }
 
 

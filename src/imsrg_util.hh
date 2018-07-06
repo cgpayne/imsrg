@@ -1,6 +1,7 @@
 #ifndef imsrg_util_hh
 #define imsrg_util_hh 1
 
+#include "Constants.hh"
 #include "ModelSpace.hh"
 #include "Operator.hh"
 #include "HartreeFock.hh"
@@ -11,6 +12,7 @@
 #include <gsl/gsl_sf_bessel.h>
 #include <vector>
 
+/*
 #define HBARC 197.3269718 // hc in MeV * fm
 #define M_NUCLEON 938.9185 // average nucleon mass in MeV
 #define PI 3.14159265359 // put in by CP for the BMEs
@@ -18,10 +20,11 @@
 #ifndef ISQRT2
   #define ISQRT2 0.70710678118654752440L
 #endif
+*/
 
 namespace imsrg_util
 {
- Operator OperatorFromString(ModelSpace& modelspace, string str);
+ Operator OperatorFromString(ModelSpace& modelspace, string &opname);
  map<index_t,double> GetSecondOrderOccupations(Operator& H, int emax);
 
  Operator NumberOp(ModelSpace& modelspace, int n, int l, int j2, int tz2);
@@ -61,17 +64,14 @@ namespace imsrg_util
  Operator L2rel_Op(ModelSpace& modelspace);
  Operator LCM_Op(ModelSpace& modelspace);
 
-////////////////// Double beta decay functions from Charlie Payne ///////////////
- Operator M0nu_TBME_Op(ModelSpace& modelspace, int Nquad, string src); // put in by CP, it is still in development
- double CPrbmeGen(ModelSpace& modelspace, double rho, double x, int n, int l, int np, int lp, int mm, double pp); // testing...
- inline double cpNorm(int a, int b) {return a==b ? ISQRT2 : 1.0;}; // put in by CP, for anti-symmetrization normalization
-// SRS - the following three don't seem to be used.
-// double CPrbme(ModelSpace& modelspace, double x, int n, int l, int np); // put in by CP, function for M0nu_TBME_Op above
-// Operator CPchecker_Op(ModelSpace& modelspace); // put in by CP
-// Operator CharlieSdS_Op(ModelSpace& modelspace); // put in by CP
-// Operator RagnarSdS_Op(ModelSpace& modelspace); // put in by CP
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////// via NDBD.hh/cc (CP) //////////////////////////////
+ Operator DGT_Op(ModelSpace& modelspace); // the Double-Gamow-Teller operator (doesn't make use of NDBD.hh/cc, but I put it here because they're at least related)
+ Operator M0nuGTF_adpt_Op(ModelSpace& modelspace, string dirname, string Type, string reduced, double Ediff, string src, string barcode); // our version of M0nu for GT or F (PSH)
+ Operator M0nuT_adpt_Op(ModelSpace& modelspace, string dirname, string reduced, double Ediff, string src, string barcode); // our version of M0nu for T (PSH)
+ //Operator M0nu_JE_Op(ModelSpace& modelspace, string dirname, string Type, double Ediff, string src); // to compare with Jon Engel's (JE) method
+ void M0nu_PrintIntegrand(ModelSpace& modelspace, string dirdat, int mode, double Ediff, string src, int nr, int lr, int npr, int lpr, double qmin, double qmax); // prints an integrand over [qmin,qmax]
+////////////////////////// END OF: via NDBD.hh/cc (CP) //////////////////////////
 
 
  Operator EKKShift( Operator& Hin, int Nlower, int Nupper);

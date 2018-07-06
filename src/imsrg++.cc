@@ -77,6 +77,7 @@ int main(int argc, char** argv)
   int file3e1max = parameters.i("file3e1max");
   int file3e2max = parameters.i("file3e2max");
   int file3e3max = parameters.i("file3e3max");
+  int gapShell = parameters.i("gapShell"); // CP
 
   double hw = parameters.d("hw");
   double smax = parameters.d("smax");
@@ -89,6 +90,7 @@ int main(int argc, char** argv)
   double BetaCM = parameters.d("BetaCM");
   double hwBetaCM = parameters.d("hwBetaCM");
   double eta_criterion = parameters.d("eta_criterion");
+  double gapE = parameters.d("gapE"); // CP
 
   vector<string> opnames = parameters.v("Operators");
   vector<string> opsfromfile = parameters.v("OperatorsFromFile");
@@ -232,7 +234,8 @@ int main(int argc, char** argv)
     if (hwBetaCM < 0) hwBetaCM = modelspace.GetHbarOmega();
     ostringstream hcm_opname;
     hcm_opname << "HCM_" << hwBetaCM;
-    Hbare += BetaCM * imsrg_util::OperatorFromString( modelspace, hcm_opname.str());
+    string hcm_opname_str = hcm_opname.str(); // CP
+    Hbare += BetaCM * imsrg_util::OperatorFromString( modelspace, hcm_opname_str); // CP
   }
 
   cout << "Creating HF" << endl;
@@ -247,6 +250,18 @@ int main(int argc, char** argv)
     HNO = hf.GetNormalOrderedH();
   else if (basis == "oscillator")
     HNO = Hbare.DoNormalOrdering();
+
+
+  // CP VVV
+  if (abs(gapE) > 1e-5 and gapShell >= 0)
+  {
+    cout<<"shifting shells 0 through "<<gapShell<<" by an artifical gap of "<<gapE<<" MeV"<<endl;
+    for (int i=0; i<=gapShell; i++)
+    {
+      HNO.OneBody(i,i) += gapE;
+    }
+  }
+  // CP ^^^
 
 
   int n_radial_points = 40;
@@ -593,8 +608,37 @@ int main(int argc, char** argv)
       rw.WriteAntoine_input(imsrgsolver.GetH_s(),intfile+".inp",modelspace.GetAref(),modelspace.GetZref());
     }
     cout << "Writing files: " << intfile << endl;
-    rw.WriteNuShellX_int(imsrgsolver.GetH_s(),intfile+".int");
-    rw.WriteNuShellX_sps(imsrgsolver.GetH_s(),intfile+".sp");
+    // CP VVV
+    int mcheck = -1;
+    for (index_t i=0;i<ops.size();++i)
+    {
+      string tempname = opnames[i];
+      if (tempname.substr(0,10) == "M0nu_adpt_")
+      {
+        mcheck = i;
+      }
+    }
+    if (mcheck >= 0)
+    {
+      string adptname = opnames[mcheck];
+      stringstream ssopnames(adptname);
+      string segment;
+      vector<string> seglist;
+      while(getline(ssopnames,segment,'_'))
+      {
+        seglist.push_back(segment);
+      }
+      string Type = seglist.at(2); // the decay type for M0nu
+      string barcode = seglist.at(6); // the unique barcode for M0nu_adpt_*
+      rw.WriteNuShellX_int(imsrgsolver.GetH_s(),intfile+Type+"_"+barcode+".int");
+      rw.WriteNuShellX_sps(imsrgsolver.GetH_s(),intfile+Type+"_"+barcode+".sp");
+    }
+    else
+    {
+      rw.WriteNuShellX_int(imsrgsolver.GetH_s(),intfile+".int");
+      rw.WriteNuShellX_sps(imsrgsolver.GetH_s(),intfile+".sp");
+    }
+    // CP ^^^
 
     if (method == "magnus")
     {

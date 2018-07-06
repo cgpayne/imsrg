@@ -2,14 +2,20 @@
 #define ModelSpace_h 1
 
 //#define ARMA_NO_DEBUG
+#include "Constants.hh"
 #include <vector>
 #include <unordered_map>
 #include <map>
 #include <armadillo>
 #include "IMSRGProfiler.hh"
+/*
 #ifndef SQRT2
   #define SQRT2 1.4142135623730950488
 #endif
+#ifndef ISQRT2
+  #define ISQRT2 0.70710678118654752440
+#endif
+*/
 #define OCC_CUT 1e-6
 
 
