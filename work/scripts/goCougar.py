@@ -10,7 +10,6 @@
 ##                  * e in [..., hw in [...
 ##                  2bme, 3bme, LECs
 ##  						-Charlie Payne
-##  						TRIUMF Summer 2018
 ######################################################################
 
 from os import path,environ,mkdir,remove,chdir,getcwd

@@ -1,7 +1,7 @@
 ## this bash script will compile all the Mvbb results into the file $myre
 ## NOTE: make sure that only the desired versions of the results exist in $IMAMYR
 ## by: Charlie Payne
-## last updated: Spring 2018
+## copyright (c): 2016-2018
 gV=1.00 # change this accordingly!
 gA=1.27 # " " "
 precision=12
@@ -161,11 +161,7 @@ do
     if [ $GTre != $Zre ] && [ $Fre != $Zre ] && [ $Tre != $Zre ]
     then
       fact=0
-      if [ $mydir = 'M0nu_BARE_fppn_gx1apn_none_e4_hw10.49_MH' ]
-      then
-        fact=$(bc <<< "scale = ${precision}; (1.0*1.0)/(1.25*1.25)")
-        chMH=', g_A = 1.25'
-      elif [ $mydir = 'M0nu_BARE_fppn_gx1apn_none_e4_hw10.49_src_AV18_MH' ]
+      if [[ $mydir = *"_MH"* ]] # Mihai Hiroi (MH) specific parameters
       then
         fact=$(bc <<< "scale = ${precision}; (1.0*1.0)/(1.25*1.25)")
         chMH=', g_A = 1.25'

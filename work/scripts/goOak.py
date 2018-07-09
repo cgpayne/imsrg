@@ -10,7 +10,6 @@
 ##                  * e in [..., hw in [...
 ##                  2bme, 3bme, LECs
 ##  						-Charlie Payne
-##  						TRIUMF Spring 2018
 ######################################################################
 
 from os import path,environ,mkdir,remove,chdir,getcwd
@@ -179,8 +178,8 @@ if MNU['int'] == 'BARE':
 elif MNU['int'] == 'magic':
   print 'running Johannes-style int...'
   ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=14'
-  ARGS['file3e1max'] = '14 file3e2max=28 file3e3max=16'
-  ARGS['e3max'] = '16'
+  ARGS['file3e1max'] = '14 file3e2max=28 file3e3max=14'
+  ARGS['e3max'] = '14'
 elif MNU['int'] == 'v3trans':
   print 'running GTquenching-style int...'
   ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=14'
@@ -288,13 +287,15 @@ for (A,Z) in [(48,20)]: # Ca48
           else:
             print 'running IMSRG version...'
           if MNU['int'] == 'magic':
-            ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
+            #ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
+            ARGS['2bme'] = '/global/scratch/exch/me2j/fromJohannes/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
           elif MNU['int'] == 'v3trans':
             ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/TBMEA2n4lo500-srg2.0_14_28.%d_TUD.int.gz'%(hw)
           if MNU['BB'] == '3N' or MNU['BB'] == 'HF':
             print 'running for 3N...'
             if MNU['int'] == 'magic':
-              ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
+              #ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
+              ARGS['3bme'] = '/global/scratch/exch/me3j/fromJohannes/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_14_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
               ARGS['LECs'] = 'EM1.8_2.0'              
             elif MNU['int'] == 'v3trans':
               ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/v3trans_J3T3.int_NNn4lo5003Nloc650nonloc500cD045cEm003-srg2.0_from20_330_161615_%d_form.gz'%(hw)
