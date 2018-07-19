@@ -7,7 +7,7 @@
 ##                  file paramater list syle, ARGS['e3max']
 ##                  * (A,Z) in...
 ##                  valence_space, custom_valence_space
-##                  * e in [..., hw in [...
+##                  * hw in [..., e in [..., MNU['Decay'] in [...
 ##                  2bme, 3bme, LECs
 ##  						-Charlie Payne
 ######################################################################
@@ -234,46 +234,49 @@ for (A,Z) in [(48,20)]: # Ca48
     print 'exiting...'
     exit()
   print 'v.sp.     = ',ARGS['valence_space']
-  #for MNU['Decay'] in ['GT','F','T','2','2c']:
-  for MNU['Decay'] in ['GT','F','T']:
-  #for MNU['Decay'] in ['GT','F']:
-  #for MNU['Decay'] in ['GT']:
-  #for MNU['Decay'] in ['F']:
-  #for MNU['Decay'] in ['T']:
-  #for MNU['Decay'] in ['2','2c']:
-  #for MNU['Decay'] in ['2']:
-  #for MNU['Decay'] in ['2c']:
-    print '-----------------------'
-    print 'Decay     = ',MNU['Decay']
-    print '-----------------------'
-    ### Set the M2nu or M0nu operator(s)
-    if MNU['Decay'] == '2':
-      ARGS['Operators'] = 'GamowTeller'
-    elif MNU['Decay'] == '2c':
-      ARGS['Operators'] = 'GamowTeller'
-      ARGS['OperatorsFromFile'] = 'GTMEC^1_1_0_2^/global/scratch/cgpayne/interactions/misc/MEC_Park2003nl0_HebelerLamreg394_cD-0.316_N1max12_N12max24_hbo16.dat.gz' # note: hbo = \hbar\omega
-    elif MNU['Decay'] == 'GT' or MNU['Decay'] == 'F' or MNU['Decay'] == 'T':
-      ARGS['Operators'] = 'M0nu_adpt_%s_%s_%s_%s_%s'%(MNU['dirout'],MNU['Decay'],MNU['Reduced'],MNU['Ec'],MNU['SRC'])
-    else:
-      print 'this Decay has not been set up yet!'
-      print 'exiting...'
-      exit()
-    #for e in [14,12,10,8,6,4]:
-    #for e in [10,8,6,4]:
-    #for e in [8,6,4]:
+  #for hw in [10.49]:
+  #for hw in [10]:
+  #for hw in [8,12,16,20,24,28,32,36,40]:
+  #for hw in [12,16,20,24,28]:
+  #for hw in [12,20]:
+  #for hw in [16,24]:
+  #for hw in [14]:
+  for hw in [16]:
+    ARGS['hw'] = str(hw)
+    print '======================='
+    print 'hw        = ',hw
+    print '======================='
+    #for e in [6,8,10,12,14]:
+    #for e in [6,8,10,12]:
+    #for e in [6,8,10]:
+    #for e in [6,8]:
     for e in [10]:
       ARGS['emax'] = '%d'%e
+      print '-----------------------'
       print 'e         = ',e
-      #for hw in [10.49]:
-      #for hw in [10]:
-      #for hw in [8,12,16,20,24,28,32,36,40]:
-      #for hw in [12,16,20,24,28]:
-      #for hw in [12,20]:
-      #for hw in [16,24]:
-      #for hw in [14]:
-      for hw in [16]:
-        ARGS['hw'] = str(hw)
-        print 'hw        = ',hw
+      print '-----------------------'
+      #for MNU['Decay'] in ['GT','F','T','2','2c']:
+      for MNU['Decay'] in ['GT','F','T']:
+      #for MNU['Decay'] in ['GT','F']:
+      #for MNU['Decay'] in ['GT']:
+      #for MNU['Decay'] in ['F']:
+      #for MNU['Decay'] in ['T']:
+      #for MNU['Decay'] in ['2','2c']:
+      #for MNU['Decay'] in ['2']:
+      #for MNU['Decay'] in ['2c']:
+        print 'Decay     = ',MNU['Decay']
+        ### Set the M2nu or M0nu operator(s)
+        if MNU['Decay'] == '2':
+          ARGS['Operators'] = 'GamowTeller'
+        elif MNU['Decay'] == '2c':
+          ARGS['Operators'] = 'GamowTeller'
+          ARGS['OperatorsFromFile'] = 'GTMEC^1_1_0_2^/global/scratch/cgpayne/interactions/misc/MEC_Park2003nl0_HebelerLamreg394_cD-0.316_N1max12_N12max24_hbo16.dat.gz' # note: hbo = \hbar\omega
+        elif MNU['Decay'] == 'GT' or MNU['Decay'] == 'F' or MNU['Decay'] == 'T':
+          ARGS['Operators'] = 'M0nu_adpt_%s_%s_%s_%s_%s'%(MNU['dirout'],MNU['Decay'],MNU['Reduced'],MNU['Ec'],MNU['SRC'])
+        else:
+          print 'this Decay has not been set up yet!'
+          print 'exiting...'
+          exit()
         ### Set the interaction (int)
         if MNU['int'] == 'BARE':
           print 'running BARE version...' # interaction files don't matter for BARE operator
