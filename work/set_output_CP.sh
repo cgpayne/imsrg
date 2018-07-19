@@ -12,13 +12,19 @@ CPclean(){
   local mydir=${1}
   rm -rf $mydir
   mkdir $mydir
-  cp $IMASMS/zscripts/z*.sh $mydir
+  cd $mydir
+  cp $IMASMS/zscripts/z*.sh .
+  ./znewrecord.sh
+  cd ..
 }
 
 CPsafe(){
   local mydir=${1}
   mkdir -p $mydir
-  cp $IMASMS/zscripts/z*.sh $mydir
+  cd $mydir
+  cp $IMASMS/zscripts/z*.sh .
+  ./znewrecord.sh
+  cd ..
 }
 
 
