@@ -20,7 +20,7 @@ IMSRGSolver::IMSRGSolver()
 
 // Constructor
 IMSRGSolver::IMSRGSolver( Operator &H_in)
-   : modelspace(H_in.GetModelSpace()),rw(NULL), H_0(&H_in), FlowingOps(1,H_in), Eta(H_in), 
+   : modelspace(H_in.GetModelSpace()),rw(NULL), H_0(&H_in), FlowingOps(1,H_in), Eta(H_in),
     istep(0), s(0),ds(0.1),ds_max(0.5),
     smax(2.0), norm_domega(0.1), omega_norm_max(2.0),eta_criterion(1e-6),method("magnus_euler"),
     flowfile(""), n_omega_written(0),max_omega_written(50),magnus_adaptive(true)
@@ -186,14 +186,14 @@ void IMSRGSolver::Solve_magnus_euler()
       }
       // ds should never be more than 1, as this is over-rotating
       if (magnus_adaptive)
-         ds = min( min( min(norm_domega/norm_eta, norm_domega / norm_eta / (norm_omega+1.0e-9)), omega_norm_max/norm_eta), ds_max); 
+         ds = min( min( min(norm_domega/norm_eta, norm_domega / norm_eta / (norm_omega+1.0e-9)), omega_norm_max/norm_eta), ds_max);
       ds = min(ds,smax-s);
 //      if (s+ds > smax) ds = smax-s;
       s += ds;
       Eta *= ds; // Here's the Euler step.
 
       // accumulated generator (aka Magnus operator) exp(Omega) = exp(dOmega) * exp(Omega_last)
-      Omega.back() = Eta.BCH_Product( Omega.back() ); 
+      Omega.back() = Eta.BCH_Product( Omega.back() );
 
       // transformed Hamiltonian H_s = exp(Omega) H_0 exp(-Omega)
       if ((Omega.size()+n_omega_written)<2)
@@ -242,7 +242,7 @@ void IMSRGSolver::Solve_magnus_modified_euler()
         norm_omega = 0;
       }
       // ds should never be more than 1, as this is over-rotating
-      ds = min(min(norm_domega/norm_eta, norm_domega / norm_eta / (norm_omega+1.0e-9)), ds_max); 
+      ds = min(min(norm_domega/norm_eta, norm_domega / norm_eta / (norm_omega+1.0e-9)), ds_max);
       if (s+ds > smax) ds = smax-s;
       s += ds;
 
@@ -252,7 +252,7 @@ void IMSRGSolver::Solve_magnus_modified_euler()
       Eta *= ds*0.5; // Here's the modified Euler step.
 
       // accumulated generator (aka Magnus operator) exp(Omega) = exp(dOmega) * exp(Omega_last)
-      Omega.back() = Eta.BCH_Product( Omega.back() ); 
+      Omega.back() = Eta.BCH_Product( Omega.back() );
 
       if ((Omega.size()+n_omega_written)<2)
       {
@@ -674,7 +674,7 @@ void IMSRGSolver::WriteFlowStatus(ostream& f)
       f.setf(ios::fixed);
       f << fixed << setw(5) << istep
         << setw(10) << setprecision(3) << s
-        << setw(fwidth) << setprecision(fprecision) << H_s.ZeroBody 
+        << setw(fwidth) << setprecision(fprecision) << H_s.ZeroBody
         << setw(fwidth) << setprecision(fprecision) << H_s.Norm()
         << setw(fwidth) << setprecision(fprecision) << H_s.Trace( modelspace->GetAref(), modelspace->GetZref() )
 //        << setw(fwidth) << setprecision(fprecision) << H_s.OneBodyNorm()
@@ -711,16 +711,16 @@ void IMSRGSolver::WriteFlowStatusHeader(ostream& f)
       f << fixed << setw(5) << "i"
         << setw(10) << setprecision(3) << "s"
         << setw(fwidth) << setprecision(fprecision) << "E0"
-//        << setw(fwidth) << setprecision(fprecision) << "||H_1||" 
-//        << setw(fwidth) << setprecision(fprecision) << "||H_2||" 
-        << setw(fwidth) << setprecision(fprecision) << "||H||" 
-        << setw(fwidth) << setprecision(fprecision) << "Tr(H)/Tr(1)" 
-        << setw(fwidth) << setprecision(fprecision) << "||Omega_1||" 
-        << setw(fwidth) << setprecision(fprecision) << "||Omega_2||" 
-        << setw(fwidth) << setprecision(fprecision) << "||Eta_1||" 
-        << setw(fwidth) << setprecision(fprecision) << "||Eta_2||" 
-        << setw(7)      << setprecision(fprecision) << "Ncomm" 
-        << setw(16)     << setprecision(fprecision) << "E(MP2)" 
+//        << setw(fwidth) << setprecision(fprecision) << "||H_1||"
+//        << setw(fwidth) << setprecision(fprecision) << "||H_2||"
+        << setw(fwidth) << setprecision(fprecision) << "||H||"
+        << setw(fwidth) << setprecision(fprecision) << "Tr(H)/Tr(1)"
+        << setw(fwidth) << setprecision(fprecision) << "||Omega_1||"
+        << setw(fwidth) << setprecision(fprecision) << "||Omega_2||"
+        << setw(fwidth) << setprecision(fprecision) << "||Eta_1||"
+        << setw(fwidth) << setprecision(fprecision) << "||Eta_2||"
+        << setw(7)      << setprecision(fprecision) << "Ncomm"
+        << setw(16)     << setprecision(fprecision) << "E(MP2)"
         << setw(7)      << setprecision(fprecision) << "N_Ops"
         << setw(16) << setprecision(fprecision) << "Walltime (s)"
         << setw(19) << setprecision(fprecision) << "Memory (MB)"

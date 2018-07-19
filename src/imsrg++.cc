@@ -7,15 +7,15 @@
 ///     /____/_____/__+__/|||       /____/_____/|/ G /  \/  \         /____/_____/_____/|||       ///
 ///    |     |     |     ||||      |     |     |/___/   /\  /\       |     |     |     ||||       ///
 ///    |  I  |  M  |     ||/|      |  I  |  M  /   /\  /  \/  \      |  I  |  M  |     ||/|       ///
-///    |_____|_____|_____|/||      |_____|____/ + /  \/   /\  /      |_____|_____|_____|/||       ///        
+///    |_____|_____|_____|/||      |_____|____/ + /  \/   /\  /      |_____|_____|_____|/||       ///
 ///    |     |     |     ||||      |     |   /___/   /\  /  \/       |     |     |     ||||       ///
 ///    |  S  |  R  |     ||/|      |  S  |   \   \  /  \/   /        |  S  |  R  |  G  ||/|       ///
 ///    |_____|_____|_____|/||      |_____|____\ __\/   /\  /         |_____|_____|_____|/||       ///
 ///    |     |     |     ||||      |     |     \   \  /  \/          |     |     |     ||||       ///
 ///    |     |  +  |     ||/       |     |  +  |\ __\/   /           |     |  +  |  +  ||/        ///
-///    |_____|_____|_____|/        |_____|_____|/\   \  /            |_____|_____|_____|/         ///       
-///                                               \___\/                                          ///        
-///                                                                                               ///        
+///    |_____|_____|_____|/        |_____|_____|/\   \  /            |_____|_____|_____|/         ///
+///                                               \___\/                                          ///
+///                                                                                               ///
 ///           imsrg++ : Interface for performing standard IMSRG calculations.                     ///
 ///                     Usage is imsrg++  option1=value1 option2=value2 ...                       ///
 ///                     To get a list of options, type imsrg++ help                               ///
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   double dsmax = parameters.d("dsmax");
   double ds_0 = parameters.d("ds_0");
   double domega = parameters.d("domega");
-  double omega_norm_max = parameters.d("omega_norm_max"); 
+  double omega_norm_max = parameters.d("omega_norm_max");
   double denominator_delta = parameters.d("denominator_delta");
   double BetaCM = parameters.d("BetaCM");
   double hwBetaCM = parameters.d("hwBetaCM");
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 //  {
 //   omp_set_num_threads(2);
 //   omp_set_nested(1);
-//  #pragma omp parallel sections 
+//  #pragma omp parallel sections
 //  {
 //    omp_set_num_threads(max(1,nthreads-3));
 //    #pragma omp section
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 //      omp_set_num_threads(1);
       rw.Read_Darmstadt_3body(input3bme, Hbare, file3e1max,file3e2max,file3e3max);
       cout << "done reading 3N" << endl;
-    }  
+    }
 //  }
 //  }
 //  omp_set_num_threads(nthreads);
@@ -287,9 +287,9 @@ int main(int argc, char** argv)
   {
     cout << "Perturbative estimates of gs energy:" << endl;
     double EMP2 = HNO.GetMP2_Energy();
-    cout << "EMP2 = " << EMP2 << endl; 
+    cout << "EMP2 = " << EMP2 << endl;
     double EMP3 = HNO.GetMP3_Energy();
-    cout << "EMP3 = " << EMP3 << endl; 
+    cout << "EMP3 = " << EMP3 << endl;
     cout << "To 3rd order, E = " << HNO.ZeroBody+EMP2+EMP3 << endl;
   }
 
@@ -367,8 +367,8 @@ int main(int argc, char** argv)
     Operator& Rp2 = ops[itR2p-opnames.begin()];
     int Z = modelspace.GetTargetZ();
     int A = modelspace.GetTargetMass();
-    cout << " HF point proton radius = " << sqrt( Rp2.ZeroBody ) << endl; 
-    cout << " HF charge radius = " << ( abs(Rp2.ZeroBody)<1e-6 ? 0.0 : sqrt( Rp2.ZeroBody + r2p + r2n*(A-Z)/Z + DF) ) << endl; 
+    cout << " HF point proton radius = " << sqrt( Rp2.ZeroBody ) << endl;
+    cout << " HF charge radius = " << ( abs(Rp2.ZeroBody)<1e-6 ? 0.0 : sqrt( Rp2.ZeroBody + r2p + r2n*(A-Z)/Z + DF) ) << endl;
   }
   for (index_t i=0;i<ops.size();++i)
   {
@@ -417,7 +417,7 @@ int main(int argc, char** argv)
 //  Eye.Eye();
 //  HlowT.ScaleFermiDirac(HNO, Temp, Efermi);  // 0 is roughly fermi surface? we can do beter...
 //  Eye.ScaleFermiDirac(HNO, Temp, Efermi);  // 0 is roughly fermi surface? we can do beter...
-//  cout << "Initial low temp trace with T = " << Temp << " and Ef = " << Efermi << ":   " << HlowT.Trace(modelspace.GetAref(),modelspace.GetZref()) <<"  with normalization  " << Eye.Trace( modelspace.GetAref(),modelspace.GetZref() ) << endl; 
+//  cout << "Initial low temp trace with T = " << Temp << " and Ef = " << Efermi << ":   " << HlowT.Trace(modelspace.GetAref(),modelspace.GetZref()) <<"  with normalization  " << Eye.Trace( modelspace.GetAref(),modelspace.GetZref() ) << endl;
 
   IMSRGSolver imsrgsolver(HNO);
   imsrgsolver.SetReadWrite(rw);
@@ -433,7 +433,7 @@ int main(int argc, char** argv)
   {
     if (method=="brueckner2") brueckner_restart=true;
     if (method=="brueckner1step")
-    { 
+    {
        nsteps = 1;
        core_generator = valence_generator;
     }
@@ -477,7 +477,7 @@ int main(int argc, char** argv)
   imsrgsolver.Solve();
 
 //  HlowT = imsrgsolver.Transform(HlowT);
-//  cout << "After Solve, low temp trace with T = " << Temp << " and Ef = " << Efermi << ":   " << HlowT.Trace(modelspace.GetAref(),modelspace.GetZref()) << endl; 
+//  cout << "After Solve, low temp trace with T = " << Temp << " and Ef = " << Efermi << ":   " << HlowT.Trace(modelspace.GetAref(),modelspace.GetZref()) << endl;
 
   if (method == "magnus")
   {
@@ -533,7 +533,7 @@ int main(int argc, char** argv)
     {
       cout << opnames[i] << " " << endl;
       ops[i] = imsrgsolver.Transform(ops[i]);
-      cout << " (" << ops[i].ZeroBody << " ) " << endl; 
+      cout << " (" << ops[i].ZeroBody << " ) " << endl;
 //      rw.WriteOperatorHuman(ops[i],intfile+opnames[i]+"_step2.op");
     }
     cout << endl;
@@ -543,7 +543,7 @@ int main(int argc, char** argv)
   }
 
 
-  // If we're doing targeted/ensemble normal ordering 
+  // If we're doing targeted/ensemble normal ordering
   // we now re-normal order wrt to the core
   // and do any remaining flow.
   ModelSpace ms2(modelspace);
@@ -667,8 +667,8 @@ int main(int argc, char** argv)
       {
          int Z = modelspace.GetTargetZ();
          int A = modelspace.GetTargetMass();
-         cout << " IMSRG point proton radius = " << sqrt( op.ZeroBody ) << endl; 
-         cout << " IMSRG charge radius = " << sqrt( op.ZeroBody + r2p + r2n*(A-Z)/Z + DF) << endl; 
+         cout << " IMSRG point proton radius = " << sqrt( op.ZeroBody ) << endl;
+         cout << " IMSRG charge radius = " << sqrt( op.ZeroBody + r2p + r2n*(A-Z)/Z + DF) << endl;
       }
       if ((op.GetJRank()>0) or (op.GetTRank()>0)) // if it's a tensor, you probably want the full operator
       {

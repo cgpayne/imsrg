@@ -54,7 +54,7 @@ void Generator::SetDenominatorDeltaOrbit(string orb)
 
 
 // Epstein-Nesbet energy denominators for White-type generator_types
-double Generator::Get1bDenominator(int i, int j) 
+double Generator::Get1bDenominator(int i, int j)
 {
    double ni = modelspace->GetOrbit(i).occ;
    double nj = modelspace->GetOrbit(j).occ;
@@ -73,7 +73,7 @@ double Generator::Get1bDenominator(int i, int j)
 }
 
 
-double Generator::Get2bDenominator(int ch, int ibra, int iket) 
+double Generator::Get2bDenominator(int ch, int ibra, int iket)
 {
    TwoBodyChannel& tbc = modelspace->GetTwoBodyChannel(ch);
    Ket & bra = tbc.GetKet(ibra);
@@ -257,7 +257,7 @@ void Generator::ConstructGenerator_ShellModel()
    }
 
 
-   // Two body piece -- eliminate ppvh and pqvv  
+   // Two body piece -- eliminate ppvh and pqvv
 
    int nchan = modelspace->GetNumberTwoBodyChannels();
    for (int ch=0;ch<nchan;++ch)
@@ -281,7 +281,7 @@ void Generator::ConstructGenerator_ShellModel()
       // Decouple the valence space
       for ( auto& iket : tbc.GetKetIndex_vv() )
       {
-         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) ) 
+         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) )
          {
             double denominator = Get2bDenominator(ch,ibra,iket);
             ETA2(ibra,iket) = H2(ibra,iket) / denominator;
@@ -310,7 +310,7 @@ void Generator::ConstructGenerator_ShellModel_Atan()
    }
 
 
-   // Two body piece -- eliminate ppvh and pqvv  
+   // Two body piece -- eliminate ppvh and pqvv
 
    int nchan = modelspace->GetNumberTwoBodyChannels();
    for (int ch=0;ch<nchan;++ch)
@@ -334,7 +334,7 @@ void Generator::ConstructGenerator_ShellModel_Atan()
       // Decouple the valence space
       for ( auto& iket : tbc.GetKetIndex_vv() )
       {
-         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) ) 
+         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) )
          {
             double denominator = Get2bDenominator(ch,ibra,iket);
             ETA2(ibra,iket) = 0.5*atan(2*H2(ibra,iket) / denominator) ;
@@ -366,7 +366,7 @@ void Generator::ConstructGenerator_ShellModel_ImaginaryTime()
    }
 
 
-   // Two body piece -- eliminate ppvh and pqvv  
+   // Two body piece -- eliminate ppvh and pqvv
 
    int nchan = modelspace->GetNumberTwoBodyChannels();
    for (int ch=0;ch<nchan;++ch)
@@ -391,7 +391,7 @@ void Generator::ConstructGenerator_ShellModel_ImaginaryTime()
       // Decouple the valence space
       for ( auto& iket : tbc.GetKetIndex_vv() )
       {
-         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) ) 
+         for ( auto& ibra : VectorUnion( tbc.GetKetIndex_qv(), tbc.GetKetIndex_qq() ) )
          {
             double denominator = Get2bDenominator(ch,ibra,iket);
             if (denominator==0) denominator = 1;
@@ -476,7 +476,7 @@ void Generator::ConstructGenerator_HartreeFock()
          Eta->OneBody(i,j) += H->OneBody(i,j)/denominator;
          Eta->OneBody(j,i) = - Eta->OneBody(i,j);
       }
-   } 
+   }
 }
 
 

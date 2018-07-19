@@ -50,17 +50,21 @@ print 'wrkdir    = ',wrkdir
 MNU  =  {}
 #MNU['outname'] = 'debug_output/'
 MNU['outname'] = 'output/'
+#MNU['outname'] = 'output_Ca48/'
+#MNU['outname'] = 'output_Ge76/'
+#MNU['outname'] = 'output_Se82/'
 #MNU['outname'] = 'output_to_javier/'
+#MNU['outname'] = 'output_to_mihai/'
 MNU['dirout'] = wrkdir + MNU['outname']
 MNU['Reduced'] = 'R'
 MNU['Ec'] = '7.72' # Ca48
-#MNU['Ec'] = '9.41' # Ge76, Se82
+#MNU['Ec'] = '9.41' # Ge76,Se82
 MNU['SRC'] = 'none'
 #MNU['SRC'] = 'AV18'
 #MNU['SRC'] = 'CD-Bonn'
 #MNU['SRC'] = 'Miller-Spencer'
 #MNU['int'] = 'BARE' # hw = 45*A^{-1/3} - 25*A^{-2/3}
-MNU['int'] = 'magic' # hw = 16
+MNU['int'] = 'magic' # hw = 16,24
 #MNU['int'] = 'v3trans' # hw = 14
 #MNU['BB'] = 'NN'
 MNU['BB'] = '3N'
@@ -113,8 +117,8 @@ print 'o.norm.m. = ',ARGS['omega_norm_max']
 ### Generator for core decoupling, can be atan, white, imaginary-time.  (atan is default)
 #ARGS['core_generator'] = 'white'
 ### Generator for valence deoupling, can be shell-model, shell-model-atan, shell-model-npnh, shell-model-imaginary-time (shell-model-atan is default)
-#ARGS['valence_generator'] = 'shell-model-imaginary-time' 
-#ARGS['valence_generator'] = 'shell-model-atan-dNgt0' 
+#ARGS['valence_generator'] = 'shell-model-imaginary-time'
+#ARGS['valence_generator'] = 'shell-model-atan-dNgt0'
 
 ### Solution method
 ARGS['method'] = 'magnus'
@@ -232,7 +236,7 @@ for (A,Z) in [(48,20)]: # Ca48
   print 'v.sp.     = ',ARGS['valence_space']
   #for MNU['Decay'] in ['GT','F','T','2','2c']:
   for MNU['Decay'] in ['GT','F','T']:
-  #for MNU['Decay'] in ['GT','F']:  
+  #for MNU['Decay'] in ['GT','F']:
   #for MNU['Decay'] in ['GT']:
   #for MNU['Decay'] in ['F']:
   #for MNU['Decay'] in ['T']:
@@ -254,7 +258,7 @@ for (A,Z) in [(48,20)]: # Ca48
       print 'this Decay has not been set up yet!'
       print 'exiting...'
       exit()
-    #for e in [12,10,8,6,4]:
+    #for e in [14,12,10,8,6,4]:
     #for e in [10,8,6,4]:
     #for e in [8,6,4]:
     for e in [10]:
@@ -296,7 +300,7 @@ for (A,Z) in [(48,20)]: # Ca48
             if MNU['int'] == 'magic':
               #ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
               ARGS['3bme'] = '/global/scratch/exch/me3j/fromJohannes/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_14_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
-              ARGS['LECs'] = 'EM1.8_2.0'              
+              ARGS['LECs'] = 'EM1.8_2.0'
             elif MNU['int'] == 'v3trans':
               ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/v3trans_J3T3.int_NNn4lo5003Nloc650nonloc500cD045cEm003-srg2.0_from20_330_161615_%d_form.gz'%(hw)
               ARGS['LECs'] = 'N4LO_LNL'

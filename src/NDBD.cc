@@ -899,7 +899,7 @@ using namespace imsrg_util;
       if (omp_get_num_threads() >= 2)
       {
         printf("DANGER!!!!!!!  Updating IntList inside a parellel loop breaks thread safety!\n");
-        printf("   I shouldn't be here in GetIntegral(%d, %d, %d, %d):   key =%lx   integral=%f\n",n,l,np,lp,key,integral); 
+        printf("   I shouldn't be here in GetIntegral(%d, %d, %d, %d):   key =%lx   integral=%f\n",n,l,np,lp,key,integral);
         exit(EXIT_FAILURE);
       }
       IntList[key] = integral;
@@ -988,7 +988,7 @@ using namespace imsrg_util;
       if (omp_get_num_threads() >= 2)
       {
         printf("DANGER!!!!!!!  Updating T6jList inside a parellel loop breaks thread safety!\n");
-        printf("   I shouldn't be here in GetT6j(%d, %d, %d, %d, %d):   key =%lx   sixj=%f\n",l1,L1,R,L2,l2,key,sixj); 
+        printf("   I shouldn't be here in GetT6j(%d, %d, %d, %d, %d):   key =%lx   sixj=%f\n",l1,L1,R,L2,l2,key,sixj);
         exit(EXIT_FAILURE);
       }
       T6jList[key] = sixj;

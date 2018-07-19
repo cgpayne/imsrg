@@ -58,12 +58,12 @@ ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=10'
 ARGS['file3e1max'] = '14 file3e2max=28 file3e3max=14'
 
 ### Name of a directory to write Omega operators so they don't need to be stored in memory. If not given, they'll just be stored in memory.
-#ARGS['scratch'] = 'SCRATCH'    
+#ARGS['scratch'] = 'SCRATCH'
 
 ### Generator for core decoupling, can be atan, white, imaginary-time.  (atan is default)
-#ARGS['core_generator'] = 'imaginary-time' 
+#ARGS['core_generator'] = 'imaginary-time'
 ### Generator for valence deoupling, can be shell-model, shell-model-atan, shell-model-npnh, shell-model-imaginary-time (shell-model-atan is default)
-#ARGS['valence_generator'] = 'shell-model-imaginary-time' 
+#ARGS['valence_generator'] = 'shell-model-imaginary-time'
 
 ### Solution method
 ARGS['method'] = 'magnus'

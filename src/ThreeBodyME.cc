@@ -97,7 +97,7 @@ void ThreeBodyME::Allocate()
              Orbit& of = modelspace->GetOrbit(f);
              int ef = 2*of.n+of.l;
              if ((ed+ee+ef)>E3max) break;
-             if ((oa.l+ob.l+oc.l+od.l+oe.l+of.l)%2>0 or of.l > lmax) 
+             if ((oa.l+ob.l+oc.l+od.l+oe.l+of.l)%2>0 or of.l > lmax)
              {
                vecf.push_back( -1 );
                continue;
@@ -195,7 +195,7 @@ void ThreeBodyME::Allocate()
              Orbit& of = modelspace->GetOrbit(f);
              int ef = 2*of.n+of.l;
              if ((ed+ee+ef)>E3max) break;
-             if ((oa.l+ob.l+oc.l+od.l+oe.l+of.l)%2>0 or of.l > lmax) 
+             if ((oa.l+ob.l+oc.l+od.l+oe.l+of.l)%2>0 or of.l > lmax)
              {
                continue;
              }
@@ -462,7 +462,7 @@ void ThreeBodyME::Erase()
 void ThreeBodyME::Deallocate()
 {
   vector<ThreeBME_type>().swap(MatEl);
-   OrbitIndexHash.clear(); 
+   OrbitIndexHash.clear();
 }
 
 

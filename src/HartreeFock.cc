@@ -20,7 +20,7 @@
 using namespace std;
 
 HartreeFock::HartreeFock(Operator& hbare)
-  : Hbare(hbare), modelspace(hbare.GetModelSpace()), 
+  : Hbare(hbare), modelspace(hbare.GetModelSpace()),
     KE(Hbare.OneBody), energies(Hbare.OneBody.diag()),
     tolerance(1e-8), convergence_ediff(7,0), convergence_EHF(7,0), freeze_occupations(true)
 {
@@ -99,7 +99,7 @@ void HartreeFock::Solve()
 
 //*********************************************************************
 /// Calculate the HF energy.
-/// \f{eqnarray*} E_{HF} &=& \sum_{\alpha} t_{\alpha\alpha} 
+/// \f{eqnarray*} E_{HF} &=& \sum_{\alpha} t_{\alpha\alpha}
 ///                    + \frac{1}{2}\sum_{\alpha\beta} V_{\alpha\beta\alpha\beta}
 ///                    + \frac{1}{6}\sum_{\alpha\beta\gamma} V_{\alpha\beta\gamma\alpha\beta\gamma} \\
 ///    &=& \sum_{ij} (2j_i+1) \rho_{ij} ( t_{ij} +\frac{1}{2}\tilde{V}^{(2)}_{ij} + \frac{1}{6}\tilde{V}^{(3)}_{ij} )
@@ -151,7 +151,7 @@ void HartreeFock::PrintEHF()
 /// Save the last vector of energies to check
 /// for convergence.
 /// Submatrices corresponding to different channels are diagonalized independently.
-/// This guarantees that J,Tz, and \f$ \pi \f$ remain good. 
+/// This guarantees that J,Tz, and \f$ \pi \f$ remain good.
 //*********************************************************************
 void HartreeFock::Diagonalize()
 {
@@ -170,7 +170,7 @@ void HartreeFock::Diagonalize()
          ++diag_tries;
          if (diag_tries > 5)
          {
-           cout << "Hartree-Fock: Failed to diagonalize the submatrix " 
+           cout << "Hartree-Fock: Failed to diagonalize the submatrix "
                 << " on iteration # " << iterations << ". The submatrix looks like:" << endl;
            F_ch.print();
            break;
@@ -186,9 +186,9 @@ void HartreeFock::Diagonalize()
 
 //*********************************************************************
 /// Construct an unnormalized two-body monopole interaction
-/// \f[ \langle ab | \bar{V}^{(2)} | cd \rangle 
+/// \f[ \langle ab | \bar{V}^{(2)} | cd \rangle
 ///   = \sqrt{(1+\delta_{ab})(1+\delta_{cd})} \sum_{J} (2J+1) \langle ab | V^{(2)} | cd \rangle_{J} \f]
-/// This method utilizes the operator method  TwoBodyME::GetTBMEmonopole() 
+/// This method utilizes the operator method  TwoBodyME::GetTBMEmonopole()
 ///
 //*********************************************************************
 void HartreeFock::BuildMonopoleV()
@@ -228,7 +228,7 @@ void HartreeFock::BuildMonopoleV()
 //*********************************************************************
 /// Construct an unnormalized three-body monopole interaction
 /// \f[ \langle iab | \bar{V}^{(3)} | jcd \rangle =
-///     \sum\limits_{J,J_{12}}\sum_{Tt_{12}}(2J+1)(2T+1) 
+///     \sum\limits_{J,J_{12}}\sum_{Tt_{12}}(2J+1)(2T+1)
 ///       \langle (ia)J_{12}t_{12};b JT| V^{(3)} | (jc)J_{12}t_{12}; d JT\rangle
 /// \f]
 //*********************************************************************
@@ -280,7 +280,7 @@ void HartreeFock::BuildMonopoleV3()
 
    Vmon3.resize( Vmon3_keys.size(), 0. );
 
-   #pragma omp parallel for schedule(dynamic,1) 
+   #pragma omp parallel for schedule(dynamic,1)
    for (size_t ind=0; ind<Vmon3.size(); ++ind)
    {
       double v=0;
@@ -340,7 +340,7 @@ void HartreeFock::Vmon3UnHash(uint64_t key, int& a, int& b, int& c, int& d, int&
 }
 
 //*********************************************************************
-/// one-body density matrix 
+/// one-body density matrix
 /// \f$ <i|\rho|j> = \sum\limits_{\beta} n_{\beta} <i|\beta> <\beta|j> \f$
 /// where \f$n_{\beta} \f$ ensures that beta runs over HF orbits in
 /// the core (i.e. below the fermi surface)
@@ -367,7 +367,7 @@ void HartreeFock::FillLowestOrbits()
   int targetN = modelspace->GetAref() - targetZ;
   int placedZ = 0;
   int placedN = 0;
-  vector<index_t> holeorbs_tmp; 
+  vector<index_t> holeorbs_tmp;
   vector<double> hole_occ_tmp;
 
   for (auto i : sorted_indices)
@@ -415,7 +415,7 @@ void HartreeFock::UpdateF()
    V3ij.zeros();
 
 
-   // This loop isn't thread safe for some reason. Regardless, parallelizing it makes it slower. 
+   // This loop isn't thread safe for some reason. Regardless, parallelizing it makes it slower.
    for (int i=0;i<norbits;i++)
    {
       Orbit& oi = modelspace->GetOrbit(i);
@@ -444,7 +444,7 @@ void HartreeFock::UpdateF()
       Vij.col(i) /= (oi.j2+1);
    }
 
-   if (Hbare.GetParticleRank()>=3) 
+   if (Hbare.GetParticleRank()>=3)
    {
       // it's just a one-body matrix, so we can store different copy for each thread.
       vector<arma::mat> V3vec(omp_get_max_threads(),V3ij);
@@ -503,7 +503,7 @@ bool HartreeFock::CheckConvergence()
 ///    0.2 & 0.9 & -0.4 \\
 /// \end{array}\right)
 /// \rightarrow
-/// \left(\begin{array}{rrr} 
+/// \left(\begin{array}{rrr}
 ///    0.8 & -0.6 & 0.2  \\
 ///    0.3 &  0.9 & 0.3  \\
 ///   -0.2 & -0.4 & 0.9  \\
@@ -580,15 +580,15 @@ Operator HartreeFock::TransformToHFBasis( Operator& OpHO)
       arma::mat Dbra(nbras,nbras);
       arma::mat Dket(nkets,nkets);
       // loop over all possible original basis configurations <pq| in this J,p,Tz channel.
-      // and all possible HF configurations |p'q'> in this J,p,Tz channel                                    
-      // bra is in the original basis, ket is in the HF basis                                              
-      // i and j are the indices of the matrix D for this channel                    
-      for (int i=0; i<nkets; ++i)    
+      // and all possible HF configurations |p'q'> in this J,p,Tz channel
+      // bra is in the original basis, ket is in the HF basis
+      // i and j are the indices of the matrix D for this channel
+      for (int i=0; i<nkets; ++i)
       {
-         Ket & ket_ho = tbc_ket.GetKet(i);   
-         for (int j=0; j<nkets; ++j)    
+         Ket & ket_ho = tbc_ket.GetKet(i);
+         for (int j=0; j<nkets; ++j)
          {
-            Ket & ket_hf = tbc_ket.GetKet(j); 
+            Ket & ket_hf = tbc_ket.GetKet(j);
             Dket(i,j) = C(ket_ho.p,ket_hf.p) * C(ket_ho.q,ket_hf.q);
             if (ket_ho.p!=ket_ho.q)
             {
@@ -604,12 +604,12 @@ Operator HartreeFock::TransformToHFBasis( Operator& OpHO)
       }
       else
       {
-        for (int i=0; i<nbras; ++i)    
+        for (int i=0; i<nbras; ++i)
         {
-           Ket & bra_hf = tbc_bra.GetKet(i);   
-           for (int j=0; j<nbras; ++j)    
+           Ket & bra_hf = tbc_bra.GetKet(i);
+           for (int j=0; j<nbras; ++j)
            {
-              Ket & bra_ho = tbc_bra.GetKet(j); 
+              Ket & bra_ho = tbc_bra.GetKet(j);
               Dbra(i,j) = C(bra_ho.p,bra_hf.p) * C(bra_ho.q,bra_hf.q);
               if (bra_ho.p!=bra_ho.q)
               {
@@ -630,7 +630,7 @@ Operator HartreeFock::TransformToHFBasis( Operator& OpHO)
 }
 
 
-Operator HartreeFock::GetNormalOrderedH(arma::mat& Cin) 
+Operator HartreeFock::GetNormalOrderedH(arma::mat& Cin)
 {
   C=Cin;
 //  ReorderCoefficients();  // Reorder columns of C so we can properly identify the hole orbits.
@@ -648,7 +648,7 @@ Operator HartreeFock::GetNormalOrderedH(arma::mat& Cin)
 /// \f[ V^{(2\rightarrow 3)J}_{ijkl} \equiv \frac{1}{\sqrt{(1+\delta_{ij})(1+\delta_{kl})}}\sum_{ab}\sum_{J_3}(2J_{3}+1)\rho_{ab}V^{JJJ_{3}}_{ijaklb} \f]
 /// Where \f$ F\f$ is the Fock matrix obtained in UpdateF() and the matrix \f$ D\f$ is the same as the one defined in TransformToHFBasis().
 ///
-Operator HartreeFock::GetNormalOrderedH() 
+Operator HartreeFock::GetNormalOrderedH()
 {
    double start_time = omp_get_wtime();
    cout << "Getting normal-ordered H in HF basis" << endl;
@@ -658,7 +658,7 @@ Operator HartreeFock::GetNormalOrderedH()
    {
      bool changed_occupations = false;
      map<index_t,double> hole_map;
-     for (index_t i=0;i<holeorbs.size();++i)  
+     for (index_t i=0;i<holeorbs.size();++i)
      {
         hole_map[holeorbs[i]] = hole_occ[i];
         if ( abs(modelspace->GetOrbit( holeorbs[i] ).occ - hole_occ[i]) > 1e-3)
@@ -687,13 +687,13 @@ Operator HartreeFock::GetNormalOrderedH()
       arma::mat V3NO(npq,npq,arma::fill::zeros);  // <ij|ab> = <ji|ba>
 
       #pragma omp parallel for schedule(dynamic,1) // confirmed that this improves performance
-      for (int i=0; i<npq; ++i)    
+      for (int i=0; i<npq; ++i)
       {
          Ket & bra = tbc.GetKet(i);
          int e2bra = 2*bra.op->n + bra.op->l + 2*bra.oq->n + bra.oq->l;
          for (int j=0; j<npq; ++j)
          {
-            Ket & ket = tbc.GetKet(j); 
+            Ket & ket = tbc.GetKet(j);
             int e2ket = 2*ket.op->n + ket.op->l + 2*ket.oq->n + ket.oq->l;
             D(i,j) = C(bra.p,ket.p) * C(bra.q,ket.q);
             if (bra.p!=bra.q)
@@ -723,8 +723,8 @@ Operator HartreeFock::GetNormalOrderedH()
               }
             }
             V3NO(i,j) /= (2*J+1);
-            if (bra.p==bra.q)  V3NO(i,j) /= SQRT2; 
-            if (ket.p==ket.q)  V3NO(i,j) /= SQRT2; 
+            if (bra.p==bra.q)  V3NO(i,j) /= SQRT2;
+            if (ket.p==ket.q)  V3NO(i,j) /= SQRT2;
             V3NO(j,i) = V3NO(i,j);
          }
       }

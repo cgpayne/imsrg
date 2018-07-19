@@ -145,14 +145,14 @@ class Operator
   void SetToCommutator(const Operator& X, const Operator& Y);
   void CommutatorScalarScalar( const Operator& X, const Operator& Y) ;
   void CommutatorScalarTensor( const Operator& X, const Operator& Y) ;
-  friend Operator Commutator(const Operator& X, const Operator& Y) ; 
+  friend Operator Commutator(const Operator& X, const Operator& Y) ;
 //  friend Operator CommutatorScalarScalar( const Operator& X, const Operator& Y) ;
 //  friend Operator CommutatorScalarTensor( const Operator& X, const Operator& Y) ;
 
-  Operator BCH_Product(  Operator& )  ; 
-  Operator BCH_Transform( const Operator& ) ; 
-  Operator Standard_BCH_Transform( const Operator& ) ; 
-  Operator Brueckner_BCH_Transform( const Operator& ) ; 
+  Operator BCH_Product(  Operator& )  ;
+  Operator BCH_Transform( const Operator& ) ;
+  Operator Standard_BCH_Transform( const Operator& ) ;
+  Operator Brueckner_BCH_Transform( const Operator& ) ;
 
   void CalculateKineticEnergy();
   void Eye(); ///< set to identity operator
@@ -191,7 +191,7 @@ class Operator
   void AddInversePandyaTransformation_SingleChannel(arma::mat& Z, int ch_cc);
 
 
-  void comm110ss( const Operator& X, const Operator& Y) ; 
+  void comm110ss( const Operator& X, const Operator& Y) ;
   void comm220ss( const Operator& X, const Operator& Y) ;
   void comm111ss( const Operator& X, const Operator& Y) ;
   void comm121ss( const Operator& X, const Operator& Y) ;

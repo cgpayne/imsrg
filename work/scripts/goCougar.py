@@ -50,7 +50,11 @@ print 'wrkdir    = ',wrkdir
 MNU  =  {}
 MNU['outname'] = 'debug_output/'
 #MNU['outname'] = 'output/'
+#MNU['outname'] = 'output_Ca48/'
+#MNU['outname'] = 'output_Ge76/'
+#MNU['outname'] = 'output_Se82/'
 #MNU['outname'] = 'output_to_javier/'
+#MNU['outname'] = 'output_to_mihai/'
 MNU['dirout'] = wrkdir + MNU['outname']
 MNU['Reduced'] = 'R'
 MNU['Ec'] = '7.72' # Ca48
@@ -113,10 +117,10 @@ print 'o.norm.m. = ',ARGS['omega_norm_max']
 #ARGS['scratch'] = 'SCRATCH'
 
 ### Generator for core decoupling, can be atan, white, imaginary-time.  (atan is default)
-#ARGS['core_generator'] = 'imaginary-time' 
+#ARGS['core_generator'] = 'imaginary-time'
 ### Generator for valence deoupling, can be shell-model, shell-model-atan, shell-model-npnh, shell-model-imaginary-time (shell-model-atan is default)
-#ARGS['valence_generator'] = 'shell-model-imaginary-time' 
-#ARGS['valence_generator'] = 'shell-model-atan-dNgt0' 
+#ARGS['valence_generator'] = 'shell-model-imaginary-time'
+#ARGS['valence_generator'] = 'shell-model-atan-dNgt0'
 
 ### Solution method
 ARGS['method'] = 'magnus'
@@ -244,7 +248,7 @@ for (A,Z) in [(48,20)]: # Ca48
   print 'v.sp.     = ',ARGS['valence_space']
   #for MNU['Decay'] in ['GT','F','T','2','2c']:
   for MNU['Decay'] in ['GT','F','T']:
-  #for MNU['Decay'] in ['GT','F']:  
+  #for MNU['Decay'] in ['GT','F']:
   #for MNU['Decay'] in ['GT']:
   #for MNU['Decay'] in ['F']:
   #for MNU['Decay'] in ['T']:
@@ -317,7 +321,7 @@ for (A,Z) in [(48,20)]: # Ca48
               ARGS['LECs'] = 'EM1.8_2.0'
             elif MNU['int'] == 'new_magic':
               ARGS['3bme'] = '/itch/cgpayne/interactions/misc/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
-              ARGS['LECs'] = 'EM1.8_2.0'              
+              ARGS['LECs'] = 'EM1.8_2.0'
             elif MNU['int'] == 'v3trans':
               ARGS['3bme'] = '/itch/cgpayne/interactions/misc/v3trans_J3T3.int_NNn4lo5003Nloc650nonloc500cD045cEm003-srg2.0_from20_330_161615_%d_form.gz'%(hw)
               ARGS['LECs'] = 'N4LO_LNL'

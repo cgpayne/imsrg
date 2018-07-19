@@ -72,7 +72,7 @@ map<string,double> Parameters::double_par = {
 
 map<string,int> Parameters::int_par = {
   {"A",	-1},	// Aeff for kinetic energy. -1 means take A of reference
-  {"e3max",		12},	
+  {"e3max",		12},
   {"emax",		6},
   {"lmax3",		-1}, // lmax for the 3body interaction
   {"nsteps",		-1},	// do the decoupling in 1 step or core-then-valence. -1 means default
@@ -96,7 +96,7 @@ Parameters::Parameters(int argc, char** argv)
 {
   help_mode = false;
   ParseCommandLineArgs(argc, argv);
-} 
+}
 
 void Parameters::ParseCommandLineArgs(int argc, char** argv)
 {

@@ -48,13 +48,13 @@ class ReadWrite
    void ReadNuShellX_int( Operator& op, string filename);
    void ReadNuShellX_int_iso( Operator& op, string filename);
    void ReadNuShellX_sp( ModelSpace& ms, string filename);
-   void WriteNuShellX_intfile( Operator& op, string filename, string mode); 
-   void WriteAntoine_int( Operator& op, string filename); 
-   void WriteAntoine_input( Operator& op, string filename, int A, int Z); 
+   void WriteNuShellX_intfile( Operator& op, string filename, string mode);
+   void WriteAntoine_int( Operator& op, string filename);
+   void WriteAntoine_input( Operator& op, string filename, int A, int Z);
    void WriteOperator(Operator& op, string filename);
    void WriteOperatorHuman(Operator& op, string filename);
-   void ReadOperator(Operator& op, string filename); 
-   void ReadOperatorHuman(Operator& op, string filename); 
+   void ReadOperator(Operator& op, string filename);
+   void ReadOperatorHuman(Operator& op, string filename);
    void CompareOperators(Operator& op1, Operator& op2, string filename);
    void ReadOneBody_Takayuki(string filename, Operator& Hbare);
    void ReadTwoBody_Takayuki(string filename, Operator& Hbare);
@@ -98,7 +98,7 @@ class ReadWrite
    string File3N;
    string format3N;
    int Aref;
-   int Zref;   
+   int Zref;
 
 
 };
@@ -107,7 +107,7 @@ class ReadWrite
 
 /// Wrapper class so we can treat a vector of floats like a stream, using the extraction operator >>.
 /// This is used for the binary version of ReadWrite::Read_Darmstadt_3body_from_stream().
-class VectorStream 
+class VectorStream
 {
  public:
   VectorStream(vector<float>& v) : vec(v), i(0) {};
@@ -116,7 +116,7 @@ class VectorStream
 //  VectorStream& operator>>(double& x) { x = vec[i++]; return (VectorStream&)(*this);}
   bool good(){ return i<vec.size(); };
   void getline(char[], int) {}; // Don't do nuthin'.
-  void read(char* buf, size_t len) {memcpy((void*)buf, (const void*)&vec[i], len);}; // Totally untested... 
+  void read(char* buf, size_t len) {memcpy((void*)buf, (const void*)&vec[i], len);}; // Totally untested...
  private:
   vector<float>& vec;
 //  vector<double>& vec;

@@ -52,7 +52,7 @@ Operator::~Operator()
 
 /////////////////// CONSTRUCTORS /////////////////////////////////////////
 Operator::Operator()
- :   modelspace(NULL), 
+ :   modelspace(NULL),
     rank_J(0), rank_T(0), parity(0), particle_rank(2),
     hermitian(true), antihermitian(false), nChannels(0)
 {
@@ -61,13 +61,13 @@ Operator::Operator()
 
 
 // Create a zero-valued operator in a given model space
-Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank) : 
+Operator::Operator(ModelSpace& ms, int Jrank, int Trank, int p, int part_rank) :
     modelspace(&ms), ZeroBody(0), OneBody(ms.GetNumberOrbits(), ms.GetNumberOrbits(),arma::fill::zeros),
     TwoBody(&ms,Jrank,Trank,p),  ThreeBody(&ms),
     rank_J(Jrank), rank_T(Trank), parity(p), particle_rank(part_rank),
     E3max(ms.GetE3max()),
-    hermitian(true), antihermitian(false),  
-    nChannels(ms.GetNumberTwoBodyChannels()) 
+    hermitian(true), antihermitian(false),
+    nChannels(ms.GetNumberTwoBodyChannels())
 {
   SetUpOneBodyChannels();
   if (particle_rank >=3) ThreeBody.Allocate();
@@ -79,7 +79,7 @@ Operator::Operator(ModelSpace& ms) :
     TwoBody(&ms),  ThreeBody(&ms),
     rank_J(0), rank_T(0), parity(0), particle_rank(2),
     E3max(ms.GetE3max()),
-    hermitian(true), antihermitian(false),  
+    hermitian(true), antihermitian(false),
     nChannels(ms.GetNumberTwoBodyChannels())
 {
   SetUpOneBodyChannels();
@@ -90,7 +90,7 @@ Operator::Operator(const Operator& op)
 : modelspace(op.modelspace),  ZeroBody(op.ZeroBody),
   OneBody(op.OneBody), TwoBody(op.TwoBody) ,ThreeBody(op.ThreeBody),
   rank_J(op.rank_J), rank_T(op.rank_T), parity(op.parity), particle_rank(op.particle_rank),
-  E2max(op.E2max), E3max(op.E3max), 
+  E2max(op.E2max), E3max(op.E3max),
   hermitian(op.hermitian), antihermitian(op.antihermitian),
   nChannels(op.nChannels), OneBodyChannels(op.OneBodyChannels)
 {
@@ -101,7 +101,7 @@ Operator::Operator(Operator&& op)
 : modelspace(op.modelspace), ZeroBody(op.ZeroBody),
   OneBody(move(op.OneBody)), TwoBody(move(op.TwoBody)) , ThreeBody(move(op.ThreeBody)),
   rank_J(op.rank_J), rank_T(op.rank_T), parity(op.parity), particle_rank(op.particle_rank),
-  E2max(op.E2max), E3max(op.E3max), 
+  E2max(op.E2max), E3max(op.E3max),
   hermitian(op.hermitian), antihermitian(op.antihermitian),
   nChannels(op.nChannels), OneBodyChannels(op.OneBodyChannels)
 {
@@ -392,7 +392,7 @@ Operator Operator::DoNormalOrdering2()
            Orbit &oa = modelspace->GetOrbit(a);
            double ja = oa.j2/2.0;
            index_t bstart = (IsNonHermitian() or ch_bra!=ch_ket )? 0 : a; // If it's neither hermitian or anti, we need to do the full sum
-           for ( auto& b : opNO.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) ) 
+           for ( auto& b : opNO.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
            {
               if (b < bstart) continue;
               Orbit &ob = modelspace->GetOrbit(b);
@@ -444,7 +444,7 @@ Operator Operator::DoNormalOrdering2()
 ///   Normal ordering of a three body operator. Start by generating the normal ordered
 ///   two body piece, then use DoNormalOrdering2() to get the rest. (Note that there
 ///   are some numerical factors).
-///   The normal ordered two body piece is 
+///   The normal ordered two body piece is
 ///   \f[ \Gamma^J_{ijkl} = V^J_{ijkl} + \sum_a n_a  \sum_K \frac{2K+1}{2J+1} V^{(3)JJK}_{ijakla} \f]
 ///   Right now, this is only set up for scalar operators, but I don't anticipate
 ///   handling 3body tensor operators in the near future.
@@ -548,7 +548,7 @@ Operator Operator::UndoNormalOrdering() const
          double ja = oa.j2*0.5;
 //         index_t bstart = IsNonHermitian() ? 0 : a; // If it's neither hermitian or anti, we need to do the full sum
            index_t bstart = (IsNonHermitian() or ch_bra!=ch_ket )? 0 : a; // If it's neither hermitian or anti, we need to do the full sum
-         for ( auto& b : opNO.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) ) 
+         for ( auto& b : opNO.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
          {
             if (b < bstart) continue;
             Orbit &ob = modelspace->GetOrbit(b);
@@ -600,7 +600,7 @@ Operator Operator::UndoNormalOrdering() const
 /// Truncate an operator to a smaller emax
 /// A corresponding ModelSpace object must be
 /// created at the appropriate scope. That's why
-/// the new operator is passed as a 
+/// the new operator is passed as a
 //********************************************
 Operator Operator::Truncate(ModelSpace& ms_new)
 {
@@ -612,10 +612,10 @@ Operator Operator::Truncate(ModelSpace& ms_new)
     cout << "Error: Cannot truncate an operator with emax = " << modelspace->GetEmax() << " to one with emax = " << new_emax << endl;
     return OpNew;
   }
-//  OpNew.rank_J=rank_J; 
-//  OpNew.rank_T=rank_T; 
-//  OpNew.parity=parity; 
-//  OpNew.particle_rank = particle_rank; 
+//  OpNew.rank_J=rank_J;
+//  OpNew.rank_T=rank_T;
+//  OpNew.parity=parity;
+//  OpNew.particle_rank = particle_rank;
   OpNew.ZeroBody = ZeroBody;
   OpNew.hermitian = hermitian;
   OpNew.antihermitian = antihermitian;
@@ -1011,8 +1011,8 @@ double Operator::GetMP3_Energy()
                for (index_t q=p;q<norbits;++q)
                {
                  Orbit& oq = modelspace->GetOrbit(q);
-                 if (p==a and q==b) continue; 
-                 if (p==i and q==j) continue; 
+                 if (p==a and q==b) continue;
+                 if (p==i and q==j) continue;
                  double Delta_abpq = OneBody(a,a)+OneBody(b,b)-OneBody(p,p)-OneBody(q,q);
                  double Delta_apiq = OneBody(a,a)+OneBody(p,p)-OneBody(i,i)-OneBody(q,q);
                  int Jmin =  max(abs(op.j2-oq.j2),max(abs(oi.j2-oj.j2),abs(oa.j2-ob.j2)))/2;
@@ -1080,7 +1080,7 @@ double Operator::MP1_Eval(Operator& H)
 }
 
 //***********************************************
-/// Calculates the kinetic energy operator in the 
+/// Calculates the kinetic energy operator in the
 /// harmonic oscillator basis.
 /// \f[ t_{ab} = \frac{1}{2}\hbar\omega
 /// \delta_{\ell_a \ell_b} \delta_{j_aj_b} \delta_{t_{za}t_{zb}}
@@ -1099,7 +1099,7 @@ double Operator::MP1_Eval(Operator& H)
    for (int a=0;a<norbits;++a)
    {
       Orbit & oa = modelspace->GetOrbit(a);
-      OneBody(a,a) = 0.5 * hw * (2*oa.n + oa.l +3./2); 
+      OneBody(a,a) = 0.5 * hw * (2*oa.n + oa.l +3./2);
       for (int b=a+1;b<norbits;++b)  // make this better once OneBodyChannel is implemented
       {
          Orbit & ob = modelspace->GetOrbit(b);
@@ -1139,7 +1139,7 @@ Operator Operator::Standard_BCH_Transform( const Operator &Omega)
    int warn_iter = 12;
    double nx = Norm();
    double ny = Omega.Norm();
-//   arma::mat occmat = 
+//   arma::mat occmat =
    Operator OpOut = *this;
    if (nx>bch_transform_threshold)
    {
@@ -1160,7 +1160,7 @@ Operator Operator::Standard_BCH_Transform( const Operator &Omega)
   
         if (this->rank_J > 0)
         {
-            cout << "Tensor BCH, i=" << i << "  Norm = " << setw(12) << setprecision(8) << fixed << OpNested.OneBodyNorm() << " " 
+            cout << "Tensor BCH, i=" << i << "  Norm = " << setw(12) << setprecision(8) << fixed << OpNested.OneBodyNorm() << " "
                                                          << setw(12) << setprecision(8) << fixed << OpNested.TwoBodyNorm() << " "
                                                          << setw(12) << setprecision(8) << fixed << OpNested.Norm() << endl;
         }
@@ -1197,7 +1197,7 @@ Operator Operator::Standard_BCH_Transform( const Operator &Omega)
   
         if (this->rank_J > 0)
         {
-            cout << "Tensor BCH, i=" << i << "  Norm = " << setw(12) << setprecision(8) << fixed << OpNested.OneBodyNorm() << " " 
+            cout << "Tensor BCH, i=" << i << "  Norm = " << setw(12) << setprecision(8) << fixed << OpNested.OneBodyNorm() << " "
                                                          << setw(12) << setprecision(8) << fixed << OpNested.TwoBodyNorm() << " "
                                                          << setw(12) << setprecision(8) << fixed << OpNested.Norm() << endl;
         }
@@ -1218,7 +1218,7 @@ Operator Operator::Standard_BCH_Transform( const Operator &Omega)
 /// Variation of the BCH transformation procedure
 /// requested by a one Dr. T.D. Morris
 /// \f[ e^{\Omega_1 + \Omega_2} X e^{-\Omega_1 - \Omega_2}
-///    \rightarrow 
+///    \rightarrow
 ///  e^{\Omega_2} e^{\Omega_1}  X e^{-\Omega_1} e^{-\Omega_2} \f]
 Operator Operator::Brueckner_BCH_Transform( const Operator &Omega)
 {
@@ -1282,8 +1282,8 @@ Operator Operator::BCH_Product(  Operator &Y)
 
 
 
-/// Obtain the Frobenius norm of the operator, which here is 
-/// defined as 
+/// Obtain the Frobenius norm of the operator, which here is
+/// defined as
 /// \f[ \|X\| = \sqrt{\|X_{(1)}\|^2 +\|X_{(2)}\|^2 } \f]
 /// and
 /// \f[ \|X_{(1)}\|^2 = \sum\limits_{ij} X_{ij}^2 \f]
@@ -1535,7 +1535,7 @@ void Operator::SetToCommutator( const Operator& X, const Operator& Y)
 
 /// Commutator where \f$ X \f$ and \f$Y\f$ are scalar operators.
 /// Should be called through Commutator()
-void Operator::CommutatorScalarScalar( const Operator& X, const Operator& Y) 
+void Operator::CommutatorScalarScalar( const Operator& X, const Operator& Y)
 {
    profiler.counter["N_ScalarCommutators"] += 1;
    double t_css = omp_get_wtime();
@@ -1565,7 +1565,7 @@ void Operator::CommutatorScalarScalar( const Operator& X, const Operator& Y)
    profiler.timer["comm121ss"] += omp_get_wtime() - t_start;
 
     t_start = omp_get_wtime();
-   Z.comm122ss(X,Y); 
+   Z.comm122ss(X,Y);
    profiler.timer["comm122ss"] += omp_get_wtime() - t_start;
 
    if (X.particle_rank>1 and Y.particle_rank>1)
@@ -1592,7 +1592,7 @@ void Operator::CommutatorScalarScalar( const Operator& X, const Operator& Y)
 
 /// Commutator \f$[X,Y]\f$ where \f$ X \f$ is a scalar operator and \f$Y\f$ is a tensor operator.
 /// Should be called through Commutator()
-void Operator::CommutatorScalarTensor( const Operator& X, const Operator& Y) 
+void Operator::CommutatorScalarTensor( const Operator& X, const Operator& Y)
 {
    profiler.counter["N_TensorCommutators"] += 1;
    double t_cst = omp_get_wtime();
@@ -1647,23 +1647,23 @@ void Operator::CommutatorScalarTensor( const Operator& X, const Operator& Y)
 
 //*****************************************************************************************
 //                ____Y    __         ____X
-//          X ___(_)             Y___(_) 
+//          X ___(_)             Y___(_)
 //
-//  [X1,Y1](0) = Sum_ab (2j_a+1) x_ab y_ba  (n_a-n_b) 
+//  [X1,Y1](0) = Sum_ab (2j_a+1) x_ab y_ba  (n_a-n_b)
 //             = Sum_a  (2j_a+1)  (xy-yx)_aa n_a
 //
 // -- AGREES WITH NATHAN'S RESULTS
 /// \f[
 ///  [X_{1)},Y_{(1)}]_{(0)} = \sum_{a} n_a (2j_a+1) \left(X_{(1)}Y_{(1)}-Y_{(1)}X_{(1)}\right)_{aa}
 /// \f]
-void Operator::comm110ss( const Operator& X, const Operator& Y) 
+void Operator::comm110ss( const Operator& X, const Operator& Y)
 {
   Operator& Z = *this;
   if (X.IsHermitian() and Y.IsHermitian()) return ; // I think this is the case
   if (X.IsAntiHermitian() and Y.IsAntiHermitian()) return ; // I think this is the case
 
    arma::mat xyyx = X.OneBody*Y.OneBody - Y.OneBody*X.OneBody;
-   for ( auto& a : modelspace->holes) 
+   for ( auto& a : modelspace->holes)
    {
       Orbit& oa = modelspace->GetOrbit(a);
       Z.ZeroBody += (oa.j2+1) * oa.occ * xyyx(a,a);
@@ -1677,7 +1677,7 @@ void Operator::comm110ss( const Operator& X, const Operator& Y)
 //           X           Y
 //
 //  [ X^(2), Y^(2) ]^(0) = 1/2 Sum_abcd  Sum_J (2J+1) x_abcd y_cdab (n_a n_b nbar_c nbar_d)
-//                       = 1/2 Sum_J (2J+1) Sum_abcd x_abcd y_cdab (n_a n_b nbar_c nbar_d)  
+//                       = 1/2 Sum_J (2J+1) Sum_abcd x_abcd y_cdab (n_a n_b nbar_c nbar_d)
 //                       = 1/2 Sum_J (2J+1) Sum_ab  (X*P_pp*Y)_abab  P_hh
 //
 //  -- AGREES WITH NATHAN'S RESULTS (within < 1%)
@@ -1689,7 +1689,7 @@ void Operator::comm110ss( const Operator& X, const Operator& Y)
 /// [X_{(2)},Y_{(2)}]_{(0)} = 2 \sum_{J} (2J+1) Tr(X_{hh'pp'}^{J} Y_{pp'hh'}^{J})
 /// \f] where we obtain a factor of four from converting two unrestricted sums to restricted sums, i.e. \f$\sum_{ab} \rightarrow \sum_{a\leq b} \f$,
 /// and using the normalized TBME.
-void Operator::comm220ss( const Operator& X, const Operator& Y) 
+void Operator::comm220ss( const Operator& X, const Operator& Y)
 {
    Operator& Z = *this;
    if (X.IsHermitian() and Y.IsHermitian()) return; // I think this is the case
@@ -1724,8 +1724,8 @@ void Operator::comm220ss( const Operator& X, const Operator& Y)
 /// \f[
 /// [X_{(1)},Y_{(1)}]_{(1)} = X_{(1)}Y_{(1)} - Y_{(1)}X_{(1)}
 /// \f]
-//void Operator::comm111ss( Operator & Y, Operator& Z) 
-void Operator::comm111ss( const Operator & X, const Operator& Y) 
+//void Operator::comm111ss( Operator & Y, Operator& Z)
+void Operator::comm111ss( const Operator & X, const Operator& Y)
 {
    Operator& Z = *this;
    Z.OneBody += X.OneBody*Y.OneBody - Y.OneBody*X.OneBody;
@@ -1735,9 +1735,9 @@ void Operator::comm111ss( const Operator & X, const Operator& Y)
 //                                       |
 //      i |              i |             |
 //        |    ___.Y       |__X__        |
-//        |___(_)    _     |   (_)__.    |  [X2,Y1](1)  =  1/(2j_i+1) sum_ab(n_a-n_b)y_ab 
-//      j | X            j |        Y    |        * sum_J (2J+1) x_biaj^(J)  
-//                                       |      
+//        |___(_)    _     |   (_)__.    |  [X2,Y1](1)  =  1/(2j_i+1) sum_ab(n_a-n_b)y_ab
+//      j | X            j |        Y    |        * sum_J (2J+1) x_biaj^(J)
+//                                       |
 //---------------------------------------*        = 1/(2j+1) sum_a n_a sum_J (2J+1)
 //                                                  * sum_b y_ab x_biaj - yba x_aibj
 //
@@ -1745,21 +1745,21 @@ void Operator::comm111ss( const Operator & X, const Operator& Y)
 //                                                = sum_ab (n_a nbar_b) sum_J (2J+1)/(2j_i+1)
 //                                                      * y_ab xbiag - yba x_aibj
 //
-// -- AGREES WITH NATHAN'S RESULTS 
+// -- AGREES WITH NATHAN'S RESULTS
 /// Returns \f$ [X_{(1)},Y_{(2)}] - [Y_{(1)},X_{(2)}] \f$, where
 /// \f[
 /// [X_{(1)},Y_{(2)}]_{ij} = \frac{1}{2j_i+1}\sum_{ab} (n_a \bar{n}_b) \sum_{J} (2J+1) (X_{ab} Y^J_{biaj} - X_{ba} Y^J_{aibj})
 /// \f]
-void Operator::comm121ss( const Operator& X, const Operator& Y) 
+void Operator::comm121ss( const Operator& X, const Operator& Y)
 {
    Operator& Z = *this;
    index_t norbits = modelspace->GetNumberOrbits();
-   #pragma omp parallel for 
+   #pragma omp parallel for
    for (index_t i=0;i<norbits;++i)
    {
       Orbit &oi = modelspace->GetOrbit(i);
       index_t jmin = Z.IsNonHermitian() ? 0 : i;
-      for (auto j : Z.OneBodyChannels.at({oi.l,oi.j2,oi.tz2}) ) 
+      for (auto j : Z.OneBodyChannels.at({oi.l,oi.j2,oi.tz2}) )
       {
           if (j<jmin) continue; // only calculate upper triangle
           for (auto& a : modelspace->holes)  // C++11 syntax
@@ -1791,21 +1791,21 @@ void Operator::comm121ss( const Operator& X, const Operator& Y)
 
 //*****************************************************************************************
 //
-//      i |              i |            [X2,Y2](1)  =  1/(2(2j_i+1)) sum_J (2J+1) 
+//      i |              i |            [X2,Y2](1)  =  1/(2(2j_i+1)) sum_J (2J+1)
 //        |__Y__           |__X__           * sum_abc (nbar_a*nbar_b*n_c + n_a*n_b*nbar_c)
 //        |    /\          |    /\          * (x_ciab y_abcj - y_ciab xabcj)
-//        |   (  )   _     |   (  )                                                                                      
+//        |   (  )   _     |   (  )
 //        |____\/          |____\/       = 1/(2(2j+1)) sum_J (2J+1)
 //      j | X            j |  Y            *  sum_c ( Pp*X*Phh*Y*Pp - Pp*Y*Phh*X*Pp)  - (Ph*X*Ppp*Y*Ph - Ph*Y*Ppp*X*Ph)_cicj
-//                                     
 //
-// -- AGREES WITH NATHAN'S RESULTS 
-//   No factor of 1/2 because the matrix multiplication corresponds to a restricted sum (a<=b) 
+//
+// -- AGREES WITH NATHAN'S RESULTS
+//   No factor of 1/2 because the matrix multiplication corresponds to a restricted sum (a<=b)
 // \f[
 // [X_{(2)},Y_{(2)}]_{ij} = \frac{1}{2(2j_i+1)}\sum_{J}(2J+1)\sum_{c}
-// \left( \mathcal{P}_{pp} (X \mathcal{P}_{hh} Y^{J} 
+// \left( \mathcal{P}_{pp} (X \mathcal{P}_{hh} Y^{J}
 // - Y^{J} \mathcal{P}_{hh} X^{J}) \mathcal{P}_{pp}
-//  - \mathcal{P}_{hh} (X^{J} \mathcal{P}_{pp} Y^{J} 
+//  - \mathcal{P}_{hh} (X^{J} \mathcal{P}_{pp} Y^{J}
 //  -  Y^{J} \mathcal{P}_{pp} X^{J}) \mathcal{P}_{hh} \right)_{cicj}
 // \f]
 /// \f[
@@ -1818,7 +1818,7 @@ void Operator::comm121ss( const Operator& X, const Operator& Y)
 /// \f]
 /// With the intermediate matrix \f[ \mathcal{M}^{J}_{pp} \equiv \frac{1}{2} (X^{J}\mathcal{P}_{pp} Y^{J} - Y^{J}\mathcal{P}_{pp}X^{J}) \f]
 /// and likewise for \f$ \mathcal{M}^{J}_{hh} \f$
-void Operator::comm221ss( const Operator& X, const Operator& Y) 
+void Operator::comm221ss( const Operator& X, const Operator& Y)
 {
 
    Operator& Z = *this;
@@ -1854,7 +1854,7 @@ void Operator::comm221ss( const Operator& X, const Operator& Y)
       Matrixpp =  LHS.cols(kets_pp) * RHS.rows(kets_pp);
       Matrixhh =  LHS.cols(kets_hh) * arma::diagmat(nanb) *  RHS.rows(kets_hh) ;
       if (kets_hh.size()>0)
-        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh); 
+        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh);
       if (kets_ph.size()>0)
         Matrixpp += LHS.cols(kets_ph) * arma::diagmat(nbarnbar_ph) *  RHS.rows(kets_ph) ;
 
@@ -1921,10 +1921,10 @@ void Operator::comm221ss( const Operator& X, const Operator& Y)
 //*****************************************************************************************
 //
 //    |     |               |      |           [X2,Y1](2) = sum_a ( Y_ia X_ajkl + Y_ja X_iakl - Y_ak X_ijal - Y_al X_ijka )
-//    |     |___.Y          |__X___|         
-//    |     |         _     |      |          
-//    |_____|               |      |_____.Y        
-//    |  X  |               |      |            
+//    |     |___.Y          |__X___|
+//    |     |         _     |      |
+//    |_____|               |      |_____.Y
+//    |  X  |               |      |
 //
 // -- AGREES WITH NATHAN'S RESULTS
 /// Returns \f$ [X_{(1)},Y_{(2)}]_{(2)} - [Y_{(1)},X_{(2)}]_{(2)} \f$, where
@@ -1933,8 +1933,8 @@ void Operator::comm221ss( const Operator& X, const Operator& Y)
 /// \f]
 /// here, all TBME are unnormalized, i.e. they should have a tilde.
 // This is still too slow...
-//void Operator::comm122ss( Operator& Y, Operator& Z ) 
-void Operator::comm122ss( const Operator& X, const Operator& Y ) 
+//void Operator::comm122ss( Operator& Y, Operator& Z )
+void Operator::comm122ss( const Operator& X, const Operator& Y )
 {
    Operator& Z = *this;
    auto& X1 = X.OneBody;
@@ -2008,12 +2008,12 @@ void Operator::comm122ss( const Operator& X, const Operator& Y )
          }
          else if (X.particle_rank<2 and Y.particle_rank>1)
          {
-            W2.col(indx_ij) =     Y2.cols(join_vert( u_ind2_aj,u_ind2_ai))    
+            W2.col(indx_ij) =     Y2.cols(join_vert( u_ind2_aj,u_ind2_ai))
                              *   join_vert( X1.unsafe_col(i).rows(u_ind1_ia)%v_factor_ia, X1.unsafe_col(j).rows(u_ind1_ja)%v_factor_ja );
          }
          else if (X.particle_rank>1 and Y.particle_rank<2)
          {
-            W2.col(indx_ij) =      -X2.cols(join_vert(u_ind2_aj,u_ind2_ai) ) 
+            W2.col(indx_ij) =      -X2.cols(join_vert(u_ind2_aj,u_ind2_ai) )
                                       *    join_vert( Y1.unsafe_col(i).rows(u_ind1_ia)%v_factor_ia, Y1.unsafe_col(j).rows(u_ind1_ja)%v_factor_ja );
          }
 
@@ -2031,14 +2031,14 @@ void Operator::comm122ss( const Operator& X, const Operator& Y )
 
 //*****************************************************************************************
 //
-//  |     |      |     |   
+//  |     |      |     |
 //  |__Y__|      |__x__|   [X2,Y2](2)_pp(hh) = 1/2 sum_ab (X_ijab Y_abkl - Y_ijab X_abkl)(1 - n_a - n_b)
 //  |     |  _   |     |                = 1/2 [ X*(P_pp-P_hh)*Y - Y*(P_pp-P_hh)*X ]
-//  |__X__|      |__Y__|   
-//  |     |      |     |   
+//  |__X__|      |__Y__|
+//  |     |      |     |
 //
 // -- AGREES WITH NATHAN'S RESULTS
-//   No factor of 1/2 because the matrix multiplication corresponds to a restricted sum (a<=b) 
+//   No factor of 1/2 because the matrix multiplication corresponds to a restricted sum (a<=b)
 /// Calculates the part of the commutator \f$ [X_{(2)},Y_{(2)}]_{(2)} \f$ which involves particle-particle
 /// or hole-hole intermediate states.
 /// \f[
@@ -2053,8 +2053,8 @@ void Operator::comm122ss( const Operator& X, const Operator& Y )
 /// \mathcal{M}^{J}_{pp} \equiv \frac{1}{2}(X^{J} \mathcal{P}_{pp} Y^{J} - Y^{J} \mathcal{P}_{pp} X^{J})
 /// \f]
 /// and likewise for \f$ \mathcal{M}^{J}_{hh} \f$.
-//void Operator::comm222_pp_hhss( Operator& opright, Operator& opout ) 
-void Operator::comm222_pp_hhss( const Operator& X, const Operator& Y ) 
+//void Operator::comm222_pp_hhss( Operator& opright, Operator& opout )
+void Operator::comm222_pp_hhss( const Operator& X, const Operator& Y )
 {
    Operator& Z = *this;
 
@@ -2091,7 +2091,7 @@ void Operator::comm222_pp_hhss( const Operator& X, const Operator& Y )
       Matrixpp =  LHS.cols(kets_pp) * RHS.rows(kets_pp);
       Matrixhh =  LHS.cols(kets_hh) * arma::diagmat(nanb) *  RHS.rows(kets_hh) ;
       if (kets_hh.size()>0)
-        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh); 
+        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh);
       if (kets_ph.size()>0)
         Matrixpp += LHS.cols(kets_ph) * arma::diagmat(nbarnbar_ph) *  RHS.rows(kets_ph) ;
 
@@ -2162,7 +2162,7 @@ void Operator::ConstructScalarMpp_Mhh(const Operator& X, const Operator& Y, TwoB
       Matrixpp =  LHS.cols(kets_pp) * RHS.rows(kets_pp);
       Matrixhh =  LHS.cols(kets_hh) * arma::diagmat(nanb) *  RHS.rows(kets_hh) ;
       if (kets_hh.size()>0)
-        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh); 
+        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh);
       if (kets_ph.size()>0)
         Matrixpp += LHS.cols(kets_ph) * arma::diagmat(nbarnbar_ph) *  RHS.rows(kets_ph) ;
 
@@ -2194,10 +2194,10 @@ void Operator::ConstructScalarMpp_Mhh(const Operator& X, const Operator& Y, TwoB
 }
 
 
-/// Since comm222_pp_hhss() and comm221ss() both require the construction of 
+/// Since comm222_pp_hhss() and comm221ss() both require the construction of
 /// the intermediate matrices \f$\mathcal{M}_{pp} \f$ and \f$ \mathcal{M}_{hh} \f$, we can combine them and
 /// only calculate the intermediates once.
-void Operator::comm222_pp_hh_221ss( const Operator& X, const Operator& Y )  
+void Operator::comm222_pp_hh_221ss( const Operator& X, const Operator& Y )
 {
 
 //   int herm = Z.IsHermitian() ? 1 : -1;
@@ -2238,7 +2238,7 @@ void Operator::comm222_pp_hh_221ss( const Operator& X, const Operator& Y )
       Matrixpp =  LHS.cols(kets_pp) * RHS.rows(kets_pp);
       Matrixhh =  LHS.cols(kets_hh) * arma::diagmat(nanb) *  RHS.rows(kets_hh) ;
       if (kets_hh.size()>0)
-        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh); 
+        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh);
       if (kets_ph.size()>0)
         Matrixpp += LHS.cols(kets_ph) * arma::diagmat(nbarnbar_ph) *  RHS.rows(kets_ph) ;
 
@@ -2292,8 +2292,8 @@ void Operator::comm222_pp_hh_221ss( const Operator& X, const Operator& Y )
             for (auto& c : modelspace->holes)
             {
                Orbit& oc = modelspace->GetOrbit(c);
-               cijJ += Jfactor * oc.occ * Mpp.GetTBME(ch,c,i,c,j); 
-               cijJ += Jfactor * (1-oc.occ) * Mhh.GetTBME(ch,c,i,c,j); 
+               cijJ += Jfactor * oc.occ * Mpp.GetTBME(ch,c,i,c,j);
+               cijJ += Jfactor * (1-oc.occ) * Mhh.GetTBME(ch,c,i,c,j);
             }
             // Sum c over particles and include the n_a * n_b terms
             for (auto& c : modelspace->particles)
@@ -2659,16 +2659,16 @@ deque<arma::mat> Operator::InitializePandya(size_t nch, string orientation="norm
 
 //*****************************************************************************************
 //
-//  THIS IS THE BIG UGLY ONE.     
-//                                             
-//   |          |      |          |           
-//   |     __Y__|      |     __X__|            
+//  THIS IS THE BIG UGLY ONE.
+//
+//   |          |      |          |
+//   |     __Y__|      |     __X__|
 //   |    /\    |      |    /\    |
-//   |   (  )   |  _   |   (  )   |            
-//   |____\/    |      |____\/    |            
-//   |  X       |      |  Y       |            
-//           
-//            
+//   |   (  )   |  _   |   (  )   |
+//   |____\/    |      |____\/    |
+//   |  X       |      |  Y       |
+//
+//
 // -- This appears to agree with Nathan's results
 //
 /// Calculates the part of \f$ [X_{(2)},Y_{(2)}]_{ijkl} \f$ which involves ph intermediate states, here indicated by \f$ Z^{J}_{ijkl} \f$
@@ -2679,23 +2679,23 @@ deque<arma::mat> Operator::InitializePandya(size_t nch, string orientation="norm
 ///  j_i  &  j_j  &  J \\
 ///  j_k  &  j_l  &  J' \\
 ///  \end{array} \right\}
-/// \left( \bar{X}^{J'}_{i\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{j}} - 
+/// \left( \bar{X}^{J'}_{i\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{j}} -
 ///   \bar{Y}^{J'}_{i\bar{l}a\bar{b}}\bar{X}^{J'}_{a\bar{b}k\bar{j}} \right)
 ///  -(-1)^{j_i+j_j-J}
 ///  \left\{ \begin{array}{lll}
 ///  j_j  &  j_i  &  J \\
 ///  j_k  &  j_l  &  J' \\
 ///  \end{array} \right\}
-/// \left( \bar{X}^{J'}_{j\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{i}} - 
+/// \left( \bar{X}^{J'}_{j\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{i}} -
 ///   \bar{Y}^{J'}_{j\bar{l}a\bar{b}}\bar{X}^{J'}_{a\bar{b}k\bar{i}} \right)
 /// \right]
 /// \f]
 /// This is implemented by defining an intermediate matrix
 /// \f[
 /// \bar{Z}^{J}_{i\bar{l}k\bar{j}} \equiv \sum_{ab}(n_a\bar{n}_b)
-/// \left[ \left( \bar{X}^{J'}_{i\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{j}} - 
+/// \left[ \left( \bar{X}^{J'}_{i\bar{l}a\bar{b}}\bar{Y}^{J'}_{a\bar{b}k\bar{j}} -
 ///   \bar{Y}^{J'}_{i\bar{l}a\bar{b}}\bar{X}^{J'}_{a\bar{b}k\bar{j}} \right)
-/// -\left( \bar{X}^{J'}_{i\bar{l}b\bar{a}}\bar{Y}^{J'}_{b\bar{a}k\bar{j}} - 
+/// -\left( \bar{X}^{J'}_{i\bar{l}b\bar{a}}\bar{Y}^{J'}_{b\bar{a}k\bar{j}} -
 ///    \bar{Y}^{J'}_{i\bar{l}b\bar{a}}\bar{X}^{J'}_{b\bar{a}k\bar{j}} \right)\right]
 /// \f]
 /// The Pandya-transformed matrix elements are obtained with DoPandyaTransformation().
@@ -2720,7 +2720,7 @@ deque<arma::mat> Operator::InitializePandya(size_t nch, string orientation="norm
 ///  \right]
 ///  \f]
 ///
-void Operator::comm222_phss( const Operator& X, const Operator& Y ) 
+void Operator::comm222_phss( const Operator& X, const Operator& Y )
 {
 
 //   cout << "start comm222_phss ******************************************************" << endl;
@@ -2913,10 +2913,10 @@ void Operator::goose_tank_ss( const Operator& X, const Operator& Y)
             for (auto& c : modelspace->holes)
             {
                Orbit& oc = modelspace->GetOrbit(c);
-               GijJ += Jfactor *    oc.occ  * Mpp_G.GetTBME(ch,c,i,c,j); 
-               GijJ -= Jfactor * (1-oc.occ) * Mhh_G.GetTBME(ch,c,i,c,j); 
-               DijJ += Jfactor *    oc.occ  * Mpp_D.GetTBME(ch,c,i,c,j); 
-               DijJ -= Jfactor * (1-oc.occ) * Mhh_D.GetTBME(ch,c,j,c,i) * dflip; 
+               GijJ += Jfactor *    oc.occ  * Mpp_G.GetTBME(ch,c,i,c,j);
+               GijJ -= Jfactor * (1-oc.occ) * Mhh_G.GetTBME(ch,c,i,c,j);
+               DijJ += Jfactor *    oc.occ  * Mpp_D.GetTBME(ch,c,i,c,j);
+               DijJ -= Jfactor * (1-oc.occ) * Mhh_D.GetTBME(ch,c,j,c,i) * dflip;
             }
             // Sum c over particles and include the n_a * n_b terms
             for (auto& c : modelspace->particles)
@@ -3011,7 +3011,7 @@ void Operator::ConstructScalarMpp_Mhh_GooseTank(const Operator& X, const Operato
       Matrixpp =  LHS.cols(kets_pp) * RHS.rows(kets_pp);
       Matrixhh =  LHS.cols(kets_hh) * arma::diagmat(nanb) *  RHS.rows(kets_hh) ;
       if (kets_hh.size()>0)
-        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh); 
+        Matrixpp +=  LHS.cols(kets_hh) * arma::diagmat(nbarnbar_hh) *  RHS.rows(kets_hh);
       if (kets_ph.size()>0)
         Matrixpp += LHS.cols(kets_ph) * arma::diagmat(nbarnbar_ph) *  RHS.rows(kets_ph) ;
 
@@ -3069,17 +3069,17 @@ void Operator::comm111st( const Operator & X, const Operator& Y)
 //                                       |
 //      i |              i |             |
 //        |    ___.Y       |__X__        |
-//        |___(_)    _     |   (_)__.    |  [X2,Y1](1)  =  1/(2j_i+1) sum_ab(n_a-n_b)y_ab 
-//      j | X            j |        Y    |        * sum_J (2J+1) x_biaj^(J)  
-//                                       |      
+//        |___(_)    _     |   (_)__.    |  [X2,Y1](1)  =  1/(2j_i+1) sum_ab(n_a-n_b)y_ab
+//      j | X            j |        Y    |        * sum_J (2J+1) x_biaj^(J)
+//                                       |
 //---------------------------------------*        = 1/(2j+1) sum_a n_a sum_J (2J+1)
 //                                                  * sum_b y_ab x_biaj - yba x_aibj
 //
 // X is scalar one-body, Y is tensor two-body
-// There must be a better way to do this looping. 
+// There must be a better way to do this looping.
 //
-//void Operator::comm121st( Operator& Y, Operator& Z) 
-void Operator::comm121st( const Operator& X, const Operator& Y) 
+//void Operator::comm121st( Operator& Y, Operator& Z)
+void Operator::comm121st( const Operator& X, const Operator& Y)
 {
 
    double tstart = omp_get_wtime();
@@ -3092,7 +3092,7 @@ void Operator::comm121st( const Operator& X, const Operator& Y)
    {
       Orbit &oi = modelspace->GetOrbit(i);
       double ji = 0.5*oi.j2;
-      for (int j : Z.OneBodyChannels.at({oi.l,oi.j2,oi.tz2}) ) 
+      for (int j : Z.OneBodyChannels.at({oi.l,oi.j2,oi.tz2}) )
       {
           Orbit &oj = modelspace->GetOrbit(j);
           double jj = 0.5*oj.j2;
@@ -3102,7 +3102,7 @@ void Operator::comm121st( const Operator& X, const Operator& Y)
           {
              Orbit &oa = modelspace->GetOrbit(a);
              double ja = 0.5*oa.j2;
-             for (auto& b : X.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) ) 
+             for (auto& b : X.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
              {
                 Orbit &ob = modelspace->GetOrbit(b);
                 double nanb = oa.occ * (1-ob.occ);
@@ -3122,7 +3122,7 @@ void Operator::comm121st( const Operator& X, const Operator& Y)
                   }
              }
              // Now, X is scalar two-body and Y is tensor one-body
-             for (auto& b : Y.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) ) 
+             for (auto& b : Y.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
              {
 
                 Orbit &ob = modelspace->GetOrbit(b);
@@ -3161,16 +3161,16 @@ void Operator::comm121st( const Operator& X, const Operator& Y)
 //*****************************************************************************************
 //
 //    |     |               |      |           [X2,Y1](2) = sum_a ( Y_ia X_ajkl + Y_ja X_iakl - Y_ak X_ijal - Y_al X_ijka )
-//    |     |___.Y          |__X___|         
-//    |     |         _     |      |          
-//    |_____|               |      |_____.Y        
-//    |  X  |               |      |            
+//    |     |___.Y          |__X___|
+//    |     |         _     |      |
+//    |_____|               |      |_____.Y
+//    |  X  |               |      |
 //
 // -- AGREES WITH NATHAN'S RESULTS
 // Right now, this is the slowest one...
 // Agrees with previous code in the scalar-scalar limit
-//void Operator::comm122st( Operator& Y, Operator& Z ) 
-void Operator::comm122st( const Operator& X, const Operator& Y ) 
+//void Operator::comm122st( Operator& Y, Operator& Z )
+void Operator::comm122st( const Operator& X, const Operator& Y )
 {
    double tstart = omp_get_wtime();
    Operator& Z = *this;
@@ -3319,12 +3319,12 @@ void Operator::comm122st( const Operator& X, const Operator& Y )
 
 
 
-// Since comm222_pp_hh and comm211 both require the construction of 
+// Since comm222_pp_hh and comm211 both require the construction of
 // the intermediate matrices Mpp and Mhh, we can combine them and
 // only calculate the intermediates once.
 // X is a scalar, Y is a tensor
-//void Operator::comm222_pp_hh_221st( Operator& Y, Operator& Z )  
-void Operator::comm222_pp_hh_221st( const Operator& X, const Operator& Y )  
+//void Operator::comm222_pp_hh_221st( Operator& Y, Operator& Z )
+void Operator::comm222_pp_hh_221st( const Operator& X, const Operator& Y )
 {
 
    double tstart = omp_get_wtime();
@@ -3381,7 +3381,7 @@ void Operator::comm222_pp_hh_221st( const Operator& X, const Operator& Y )
 
 
     MLeft  = join_horiz( LHS1.cols(join_vert(bras_pp,join_vert(bras_hh,bras_ph))), -RHS.cols(join_vert(kets_pp,join_vert(kets_hh,kets_ph))) );
-    MRight = join_vert( join_vert(     RHS.rows(bras_pp), 
+    MRight = join_vert( join_vert(     RHS.rows(bras_pp),
                           join_vert( RHS.rows(bras_hh)  % tbc_bra.Ket_unocc_hh.cols( arma::uvec(RHS.n_cols,arma::fill::zeros) )  ,
                                      RHS.rows(bras_ph)  % tbc_bra.Ket_unocc_ph.cols( arma::uvec(RHS.n_cols,arma::fill::zeros) ) )),
                       join_vert(     LHS2.rows(kets_pp),
@@ -3420,7 +3420,7 @@ void Operator::comm222_pp_hh_221st( const Operator& X, const Operator& Y )
               for (int J1=j1min; J1<=j1max; ++J1)
               {
                int j2min = max(int(abs(jc-jj)),abs(Lambda-J1));
-               int j2max = min(int(jc+jj),J1+Lambda); 
+               int j2max = min(int(jc+jj),J1+Lambda);
                for (int J2=j2min; J2<=j2max; ++J2)
                {
                 double hatfactor = sqrt( (2*J1+1)*(2*J2+1) );
@@ -3441,7 +3441,7 @@ void Operator::comm222_pp_hh_221st( const Operator& X, const Operator& Y )
               for (int J1=j1min; J1<=j1max; ++J1)
               {
                int j2min = max(int(abs(jc-jj)),abs(Lambda-J1));
-               int j2max = min(int(jc+jj),J1+Lambda); 
+               int j2max = min(int(jc+jj),J1+Lambda);
                for (int J2=j2min; J2<=j2max; ++J2)
                {
                 double hatfactor = sqrt( (2*J1+1)*(2*J2+1) );
@@ -3855,7 +3855,7 @@ void Operator::AddInverseTensorPandyaTransformation_SingleChannel(arma::mat& Zba
             double norm = bra.delta_pq()==ket.delta_pq() ? 1+bra.delta_pq() : SQRT2;
             #pragma omp atomic
             Zijkl(ibra,iket) +=  (commij - modelspace->phase(ji+jj-J1)*commji) / norm;
-            if (ch_bra==ch_ket) 
+            if (ch_bra==ch_ket)
             {
                #pragma omp atomic write
                Zijkl(iket,ibra) = hZ * Zijkl(ibra,iket);
@@ -4045,16 +4045,16 @@ void Operator::AddInverseTensorPandyaTransformation( const map<array<index_t,2>,
 
 //*****************************************************************************************
 //
-//  THIS IS THE BIG UGLY ONE.     
-//                                             
-//   |          |      |          |           
-//   |     __Y__|      |     __X__|            
+//  THIS IS THE BIG UGLY ONE.
+//
+//   |          |      |          |
+//   |     __Y__|      |     __X__|
 //   |    /\    |      |    /\    |
-//   |   (  )   |  _   |   (  )   |            
-//   |____\/    |      |____\/    |            
-//   |  X       |      |  Y       |            
-//           
-//            
+//   |   (  )   |  _   |   (  )   |
+//   |____\/    |      |____\/    |
+//   |  X       |      |  Y       |
+//
+//
 // -- This appears to agree with Nathan's results
 //
 /// Calculates the part of \f$ [X_{(2)},\mathbb{Y}^{\Lambda}_{(2)}]_{ijkl} \f$ which involves ph intermediate states, here indicated by \f$ \mathbb{Z}^{J_1J_2\Lambda}_{ijkl} \f$
@@ -4066,7 +4066,7 @@ void Operator::AddInverseTensorPandyaTransformation( const map<array<index_t,2>,
 ///  j_j  &  j_k  &  J_4 \\
 ///  J_1  &  J_2  &  \Lambda \\
 ///  \end{array} \right\}
-/// \left( \bar{X}^{J3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} - 
+/// \left( \bar{X}^{J3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} -
 ///   \bar{\mathbb{Y}}^{J_3J_4\Lambda}_{i\bar{l}a\bar{b}}\bar{X}^{J_4}_{a\bar{b}k\bar{j}} \right)
 ///  -(-1)^{j_i+j_j-J_1}
 ///  \left\{ \begin{array}{lll}
@@ -4074,16 +4074,16 @@ void Operator::AddInverseTensorPandyaTransformation( const map<array<index_t,2>,
 ///  j_i  &  j_k  &  J_4 \\
 ///  J_1  &  J_2  &  \Lambda \\
 ///  \end{array} \right\}
-/// \left( \bar{X}^{J_3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} - 
+/// \left( \bar{X}^{J_3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} -
 ///   \bar{\mathbb{Y}}^{J_3J_4\Lambda}_{i\bar{l}a\bar{b}}\bar{X}^{J_4}_{a\bar{b}k\bar{j}} \right)
 /// \right]
 /// \f]
 /// This is implemented by defining an intermediate matrix
 /// \f[
 /// \bar{\mathbb{Z}}^{J_3J_4\Lambda}_{i\bar{l}k\bar{j}} \equiv \sum_{ab}(n_a\bar{n}_b)
-/// \left[ \left( \bar{X}^{J3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} - 
+/// \left[ \left( \bar{X}^{J3}_{i\bar{l}a\bar{b}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{a\bar{b}k\bar{j}} -
 ///   \bar{\mathbb{Y}}^{J_3J_4\Lambda}_{i\bar{l}a\bar{b}}\bar{X}^{J_4}_{a\bar{b}k\bar{j}} \right)
-/// -\left( \bar{X}^{J_3}_{i\bar{l}b\bar{a}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{b\bar{a}k\bar{j}} - 
+/// -\left( \bar{X}^{J_3}_{i\bar{l}b\bar{a}}\bar{\mathbb{Y}}^{J_3J_4\Lambda}_{b\bar{a}k\bar{j}} -
 ///    \bar{\mathbb{Y}}^{J_3J_4\Lambda}_{i\bar{l}b\bar{a}}\bar{X}^{J_4}_{b\bar{a}k\bar{j}} \right)\right]
 /// \f]
 /// The Pandya-transformed matrix elements are obtained with DoTensorPandyaTransformation().
@@ -4111,8 +4111,8 @@ void Operator::AddInverseTensorPandyaTransformation( const map<array<index_t,2>,
 ///  \right]
 ///  \f]
 ///
-//void Operator::comm222_phst( Operator& Y, Operator& Z ) 
-void Operator::comm222_phst( const Operator& X, const Operator& Y ) 
+//void Operator::comm222_phst( Operator& Y, Operator& Z )
+void Operator::comm222_phst( const Operator& X, const Operator& Y )
 {
 
    Operator& Z = *this;
@@ -4264,7 +4264,7 @@ void Operator::comm222_phst( const Operator& X, const Operator& Y )
 //                                                                     J2  [hp        |ph        ]            Xbar'_phkj = Xbar_hpkj * (-1)^{p+h+k+j}*hX
 //                                                                         [   Xbar   |   Xbar'  ]
 //                                                                         [-ph       |-hp       ]
-//    
+//
 //
 //      t_start2 = omp_get_wtime();
       int halfncx2 = XJ2.n_cols/2;
@@ -4275,16 +4275,16 @@ void Operator::comm222_phst( const Operator& X, const Operator& Y )
 
       arma::mat Mleft = join_horiz( XJ1,  -flipphaseY * YJ2J1.t() );
       arma::mat Mright = join_vert( join_horiz( YJ1J2 ,  join_vert( YJ1J2.tail_rows(halfnry12)%PhaseMatYJ1J2 ,
-                                                                    YJ1J2.head_rows(halfnry12)%PhaseMatYJ1J2  )   ), 
+                                                                    YJ1J2.head_rows(halfnry12)%PhaseMatYJ1J2  )   ),
                                   hX*join_vert( XJ2,    join_horiz(   XJ2.tail_cols(halfncx2)%PhaseMatXJ2 ,
                                                                       XJ2.head_cols(halfncx2)%PhaseMatXJ2     )   ).t() );
 
       Zmat = Mleft * Mright;
 //      profiler.timer["Multiply_Mleft_Mright"] += omp_get_wtime() - t_start2;
 
-//      Z.AddInverseTensorPandyaTransformation_SingleChannel(Zmat,ch_bra_cc,ch_ket_cc); 
+//      Z.AddInverseTensorPandyaTransformation_SingleChannel(Zmat,ch_bra_cc,ch_ket_cc);
 //      cout << "PANDYA LOOKUP size = " << plookup.size() << endl;
-//      Z_debug1.AddInverseTensorPandyaTransformation_SingleChannel(Zmat,ch_bra_cc,ch_ket_cc); 
+//      Z_debug1.AddInverseTensorPandyaTransformation_SingleChannel(Zmat,ch_bra_cc,ch_ket_cc);
 
    }
    profiler.timer["Build Z_bar_tensor"] += omp_get_wtime() - t_start;

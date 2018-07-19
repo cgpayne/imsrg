@@ -115,7 +115,7 @@ double TwoBodyME::GetTBME(int ch_bra, int ch_ket, int a, int b, int c, int d) co
    return norm * GetTBME_norm(ch_bra,ch_ket,a,b,c,d);
 }
 
-/// This returns the normalized matrix element 
+/// This returns the normalized matrix element
 double TwoBodyME::GetTBME_norm(int ch_bra, int ch_ket, int a, int b, int c, int d) const
 {
    TwoBodyChannel& tbc_bra =  modelspace->GetTwoBodyChannel(ch_bra);
@@ -630,9 +630,9 @@ double TwoBodyME::GetTBMEmonopole(Ket & bra, Ket & ket) const
 //        {
 //          if ( abs(twoj1-twoj2)>2*J or (twoj1+twoj2)<2*J) continue; // triangle condition
 //          double normninej = sqrt( (twoj1+1)*(twoj2+1)*(2*L+1)*(2*S+1) ) *modelspace->GetNineJ(l1,0.5,twoj1*0.5, l2,0.5,twoj1*0.5, L, S, J);
-////          cout << "{ " << l1 << " " << "1/2" << " " << twoj1 << "/2 " << "}" << endl; 
-////          cout << "{ " << l2 << " " << "1/2" << " " << twoj2 << "/2 " << "}" << endl; 
-////          cout << "{ " <<  L << "  " <<  S    << "   "<<   J  << "  }" << " = " << modelspace->GetNineJ(l1,0.5,twoj1*0.5, l2,0.5,twoj1*0.5, L, S, J)  << endl; 
+////          cout << "{ " << l1 << " " << "1/2" << " " << twoj1 << "/2 " << "}" << endl;
+////          cout << "{ " << l2 << " " << "1/2" << " " << twoj2 << "/2 " << "}" << endl;
+////          cout << "{ " <<  L << "  " <<  S    << "   "<<   J  << "  }" << " = " << modelspace->GetNineJ(l1,0.5,twoj1*0.5, l2,0.5,twoj1*0.5, L, S, J)  << endl;
 ////          cout << "normninej = " << (twoj1+1) << " * " << (twoj2+1)<< " * " << (2*L+1) << " * " << (2*S+1) << " * --^  = " << normninej << endl;
 //          for (int n1=0; n1<=(e12-l1-l2)/2; n1++)
 //          {

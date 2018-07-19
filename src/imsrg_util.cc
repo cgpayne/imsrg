@@ -78,7 +78,7 @@ namespace imsrg_util
          double hw_VCM; // frequency of trapping potential
          istringstream(opnamesplit[1]) >> hw_VCM;
          int A = modelspace.GetTargetMass();
-         return 0.5*A*M_NUCLEON*hw_VCM*hw_VCM/HBARC/HBARC*R2CM_Op(modelspace); 
+         return 0.5*A*M_NUCLEON*hw_VCM*hw_VCM/HBARC/HBARC*R2CM_Op(modelspace);
       }
       else if (opnamesplit[0] == "Rp2Z") // Get point proton radius for specified Z, e.g. Rp2Z_10 for neon
       {
@@ -486,7 +486,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
    for (int a=0;a<norbits;++a)
    {
       Orbit & oa = modelspace.GetOrbit(a);
-      T.OneBody(a,a) = 0.5 * hw * (2*oa.n + oa.l +3./2); 
+      T.OneBody(a,a) = 0.5 * hw * (2*oa.n + oa.l +3./2);
       for ( int b : T.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
       {
          if (b<=a) continue;
@@ -522,7 +522,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
 /// t_{ij} = \frac{1}{\hbar\omega} \left\langle i | T_{12} | j \right\rangle = \frac{1}{2}(2n_i+\ell_i+3/2) \delta_{ij} + \frac{1}{2}\sqrt{n_j(n_j+\ell_j+\frac{1}{2})} \delta_{n_i,n_j-1}\delta_{k_i k_j}
 /// \f]
 /// where \f$k\f$ labels all quantum numbers other than \f$n\f$ and a two-body piece
-/// \f[  
+/// \f[
 /// t_{ijkl} = \frac{1}{\hbar\omega} \left\langle ij | (T^{CM}_{12} - T^{rel}_{12}) | kl \right\rangle
 /// \f]
  Operator TCM_Op(ModelSpace& modelspace)
@@ -585,7 +585,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
  }
 
 
- // evaluate <bra| p1*p2/2 | ket> 
+ // evaluate <bra| p1*p2/2 | ket>
 /// This returns the antisymmetrized J-coupled two body matrix element of \f$ \vec{p}_1 \cdot \vec{p}_2 / (m) \f$.
 /// The formula is
 /// \f{eqnarray*}{
@@ -638,7 +638,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
    int fab = 2*na + 2*nb + la + lb;
    int fcd = 2*nc + 2*nd + lc + ld;
    // p1*p2 only connects kets with delta N = 0,1 ==> delta E = 0,2
-   if (abs(fab-fcd)>2 or abs(fab-fcd)%2 >0 ) return 0; 
+   if (abs(fab-fcd)>2 or abs(fab-fcd)%2 >0 ) return 0;
 
    double sa,sb,sc,sd;
    sa=sb=sc=sd=0.5;
@@ -850,7 +850,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
 
 // Center of mass R^2, in units of fm^2
 /// Returns
-/// \f[ 
+/// \f[
 /// R^{2}_{CM} = \left( \frac{1}{A}\sum_{i}\vec{r}_{i}\right)^2 =
 /// \frac{1}{A^2} \left( \sum_{i}r_{i}^{2} + 2\sum_{i<j}\vec{r}_i\cdot\vec{r}_j  \right)
 /// \f]
@@ -883,7 +883,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
 
    int nchan = modelspace.GetNumberTwoBodyChannels();
    modelspace.PreCalculateMoshinsky();
-   #pragma omp parallel for schedule(dynamic,1) 
+   #pragma omp parallel for schedule(dynamic,1)
    for (int ch=0; ch<nchan; ++ch)
    {
       TwoBodyChannel& tbc = modelspace.GetTwoBodyChannel(ch);
@@ -895,7 +895,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
          {
             Ket & ket = tbc.GetKet(iket);
             // factor of 2 comes from limiting sum to i<j. Otherwise it would be r1*r2 + r2*r1.
-            double mat_el = 2*Calculate_r1r2(modelspace,bra,ket,tbc.J); 
+            double mat_el = 2*Calculate_r1r2(modelspace,bra,ket,tbc.J);
              
             R2cmOp.TwoBody.SetTBME(ch,ibra,iket,mat_el);
             R2cmOp.TwoBody.SetTBME(ch,iket,ibra,mat_el);
@@ -912,7 +912,7 @@ Operator KineticEnergy_Op(ModelSpace& modelspace)
 
 // Intrinsic point proton radius squared
 /// Returns
-/// \f[ 
+/// \f[
 /// R_p^{2} = \frac{1}{Z} \sum_{p}\left(\vec{r}_{p}-\vec{R}_{CM}\right)^2 =
 /// R^2_{CM} + \frac{A-2}{AZ} \sum_{p}r_{p}^{2} - \frac{4}{AZ}\sum_{i<j}\vec{r}_i\cdot\vec{r}_j  \right)
 /// \f]
@@ -1085,7 +1085,7 @@ Operator RSquaredOp(ModelSpace& modelspace)
    for (unsigned int a=0;a<norbits;++a)
    {
       Orbit & oa = modelspace.GetOrbit(a);
-      r2.OneBody(a,a) = (2*oa.n + oa.l +1.5); 
+      r2.OneBody(a,a) = (2*oa.n + oa.l +1.5);
       for ( unsigned int b : r2.OneBodyChannels.at({oa.l, oa.j2, oa.tz2}) )
       {
         if ( b < a ) continue;
@@ -1112,7 +1112,7 @@ Operator RSquaredOp(ModelSpace& modelspace)
 
 /// One-body part of the proton charge radius operator.
 /// Returns
-/// \f[ 
+/// \f[
 /// \hat{R}^{2}_{p1} = \sum_{i} e_{i}{r}_i^2
 /// \f]
  Operator R2_1body_Op(ModelSpace& modelspace,string option)
@@ -1128,7 +1128,7 @@ Operator RSquaredOp(ModelSpace& modelspace)
    for (unsigned int a : orbitlist )
    {
       Orbit & oa = modelspace.GetOrbit(a);
-      r2.OneBody(a,a) = (2*oa.n + oa.l +1.5); 
+      r2.OneBody(a,a) = (2*oa.n + oa.l +1.5);
       for ( unsigned int b : r2.OneBodyChannels.at({oa.l, oa.j2, oa.tz2}) )
       {
         if ( b < a ) continue;
@@ -1153,8 +1153,8 @@ Operator RSquaredOp(ModelSpace& modelspace)
 
 /// Two-body part of the proton charge radius operator.
 /// Returns
-/// \f[ 
-/// \hat{R}^{2}_{p2} = \sum_{i\neq j} e_{i}\vec{r}_i\cdot\vec{r}_j 
+/// \f[
+/// \hat{R}^{2}_{p2} = \sum_{i\neq j} e_{i}\vec{r}_i\cdot\vec{r}_j
 /// \f]
 /// evaluated in the oscillator basis.
  Operator R2_2body_Op(ModelSpace& modelspace,string option)
@@ -1164,7 +1164,7 @@ Operator RSquaredOp(ModelSpace& modelspace)
 
    int nchan = modelspace.GetNumberTwoBodyChannels();
    modelspace.PreCalculateMoshinsky();
-   #pragma omp parallel for schedule(dynamic,1) 
+   #pragma omp parallel for schedule(dynamic,1)
    for (int ch=0; ch<nchan; ++ch)
    {
       TwoBodyChannel& tbc = modelspace.GetTwoBodyChannel(ch);
@@ -1183,8 +1183,8 @@ Operator RSquaredOp(ModelSpace& modelspace)
          for (int iket=ibra;iket<nkets;++iket)
          {
             Ket & ket = tbc.GetKet(iket);
-//            double mat_el = Calculate_r1r2(modelspace,bra,ket,tbc.J) * oscillator_b ; 
-            double mat_el = Calculate_r1r2(modelspace,bra,ket,tbc.J) * prefactor; 
+//            double mat_el = Calculate_r1r2(modelspace,bra,ket,tbc.J) * oscillator_b ;
+            double mat_el = Calculate_r1r2(modelspace,bra,ket,tbc.J) * prefactor;
             Rp2Op.TwoBody.SetTBME(ch,ibra,iket,mat_el);
             Rp2Op.TwoBody.SetTBME(ch,iket,ibra,mat_el);
          }
@@ -1246,7 +1246,7 @@ Operator E0Op(ModelSpace& modelspace)
    for (unsigned int a : modelspace.proton_orbits)
    {
       Orbit & oa = modelspace.GetOrbit(a);
-      e0.OneBody(a,a) = (2*oa.n + oa.l +1.5); 
+      e0.OneBody(a,a) = (2*oa.n + oa.l +1.5);
       for (unsigned int b : e0.OneBodyChannels.at({oa.l,oa.j2,oa.tz2}) )
       {
         if (b<=a) continue;
@@ -1651,7 +1651,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
 //             / ( gsl_sf_fact(k) * gsl_sf_fact(2*la+2*k+1) * gsl_sf_fact(na-k) * gsl_sf_fact(2*p-la+lb-2*k+1) )
 //              / ( gsl_sf_fact(nb - p + q + k) * gsl_sf_fact(p-q-k) );
       B2  += boost::math::tgamma_ratio(la+k,k) * boost::math::tgamma_ratio(p-int((la-lb)/2)-k, 2*p-la+lb-2*k+1)
-             / (  boost::math::factorial<double>(2*la+2*k+1) * boost::math::factorial<double>(na-k)  
+             / (  boost::math::factorial<double>(2*la+2*k+1) * boost::math::factorial<double>(na-k)
                 * boost::math::factorial<double>(nb - p + q + k) * boost::math::factorial<double>(p-q-k) );
    }
    return B1 * B2;
@@ -1728,7 +1728,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
         double M_sig = 2 * modelspace.phase(oi.l+oi.j2/2.0+1.5) * sqrt((oi.j2+1)*(oj.j2+1)) * sqrt(1.5) * sixj;
         Sig.OneBody(i,j) = M_sig;
       }
-   } 
+   }
    return Sig;
  }
 
@@ -1833,7 +1833,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
        {
          Orbit& oj = modelspace.GetOrbit(j);
          OVL.OneBody(i,j) = RadialIntegral(oi.n, oi.l, oj.n, oj.l, 0 ); // This is not quite right. Only works for li+lj=even.
-       } 
+       }
      }
      return OVL;
   }
@@ -2499,7 +2499,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
        {
          for (int Lam_ab=0; Lam_ab<= fab-2*N_ab; ++Lam_ab) // Lam_ab = CoM l for a,b
          {
-           int Lam_cd = Lam_ab; // Lcm and Lrel conserve lam and Lam, 
+           int Lam_cd = Lam_ab; // Lcm and Lrel conserve lam and Lam,
            for (int lam_ab=(fab-2*N_ab-Lam_ab)%2; lam_ab<= (fab-2*N_ab-Lam_ab); lam_ab+=2) // lam_ab = relative l for a,b
            {
               if (Lab<abs(Lam_ab-lam_ab) or Lab>(Lam_ab+lam_ab) ) continue;
@@ -2556,7 +2556,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
 
    int nchan = modelspace.GetNumberTwoBodyChannels();
    modelspace.PreCalculateMoshinsky();
-   #pragma omp parallel for schedule(dynamic,1) 
+   #pragma omp parallel for schedule(dynamic,1)
    for (int ch=0; ch<nchan; ++ch)
    {
     TwoBodyChannel& tbc = modelspace.GetTwoBodyChannel(ch);
@@ -2971,7 +2971,7 @@ Operator FourierBesselCoeff(ModelSpace& modelspace, int nu, double R, vector<ind
 // {
 //   return v1;
 // }
-// 
+//
 // template <typename T, typename... Args>
 // T VectorUnion(T& v1, T& v2, Args... args)
 // {

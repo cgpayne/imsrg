@@ -33,6 +33,10 @@ To go from the IMSRG evolved TBMEs of 0vBB to the NMEs (using NuShellX), see the
 https://github.com/cgpayne/SMscripts.git
 
 
+My editor automatically trims trailing whitespace, so I recommend using 'git diff -w' in place of 'git diff' when checking the changes I made.
+    -> many files...
+
+
 Moved the git ignore file from src to the root repository and modified it accordingly.
     -> .gitignore
 

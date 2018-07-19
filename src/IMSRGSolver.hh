@@ -21,7 +21,7 @@ class IMSRGSolver
 //  private:
   ModelSpace* modelspace;
   ReadWrite* rw;
-  Operator* H_0; 
+  Operator* H_0;
   deque<Operator> FlowingOps;
   Operator H_saved;
   Operator Eta;

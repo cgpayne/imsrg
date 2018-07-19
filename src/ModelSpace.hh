@@ -178,8 +178,8 @@ class ModelSpace
    ModelSpace(int emax, string reference);
 
    // Overloaded operators
-   ModelSpace operator=(const ModelSpace&); 
-   ModelSpace operator=(ModelSpace&&); 
+   ModelSpace operator=(const ModelSpace&);
+   ModelSpace operator=(ModelSpace&&);
 
    // Methods
 
@@ -201,8 +201,8 @@ class ModelSpace
    void AddOrbit(Orbit orb);
    void AddOrbit(int n, int l, int j2, int tz2, double occ, int io);
    // Setter/Getters
-   Orbit& GetOrbit(int i) {return (Orbit&) Orbits[i];}; 
-//   Orbit& GetOrbit(int i) const {return (Orbit&) Orbits[i];}; 
+   Orbit& GetOrbit(int i) {return (Orbit&) Orbits[i];};
+//   Orbit& GetOrbit(int i) const {return (Orbit&) Orbits[i];};
    Ket& GetKet(int i) const {return (Ket&) Kets[i];};
    Ket& GetKet(int p, int q) const {return (Ket&) Kets[Index2(p,q)];};
    int GetOrbitIndex(int n, int l, int j2, int tz2) const {return Index1(n,l,j2,tz2);};
@@ -275,10 +275,10 @@ class ModelSpace
    vector<index_t> proton_orbits;
    vector<index_t> neutron_orbits;
 
-   vector<index_t> KetIndex_pp; 
+   vector<index_t> KetIndex_pp;
    vector<index_t> KetIndex_ph;
    vector<index_t> KetIndex_hh;
-   vector<index_t> KetIndex_cc; 
+   vector<index_t> KetIndex_cc;
    vector<index_t> KetIndex_vc;
    vector<index_t> KetIndex_qc;
    vector<index_t> KetIndex_vv;

@@ -119,7 +119,7 @@ void ReadWrite::ReadTBME_Oslo( string filename, Operator& Hbare)
      if (a>norbits or b>norbits or c>norbits or d>norbits) continue;
      a--; b--; c--; d--; // Fortran -> C  ==> 1 -> 0
 
-     double com_corr = fbuf[2] * Hbare.GetModelSpace()->GetHbarOmega() / Hbare.GetModelSpace()->GetTargetMass();  
+     double com_corr = fbuf[2] * Hbare.GetModelSpace()->GetHbarOmega() / Hbare.GetModelSpace()->GetTargetMass();
 
 // NORMALIZATION: Read in normalized, antisymmetrized TBME's
 
@@ -243,7 +243,7 @@ void ReadWrite::ReadTBME_OakRidge( string spname, string tbmename, Operator& Hba
 
 
 
-    Hbare.TwoBody.SetTBME(J2/2,P,Tz,a,b,c,d, tbme ); 
+    Hbare.TwoBody.SetTBME(J2/2,P,Tz,a,b,c,d, tbme );
   }
 
 
@@ -355,7 +355,7 @@ void ReadWrite::WriteOneBody_Oslo( string filename, Operator& Op)
 
   outfile << "   ----> Oscillator parameters, Model space and single-particle data" << endl;
   outfile << "Mass number A of chosen nucleus (important for CoM corrections):          " << modelspace->GetTargetMass() << endl;
-  outfile << "Oscillator length and energy: " << setw(12) << setprecision(6) << scientific 
+  outfile << "Oscillator length and energy: " << setw(12) << setprecision(6) << scientific
           << HBARC / sqrt( M_NUCLEON * modelspace->GetHbarOmega() )
           << "  " << setw(12) << setprecision(6) << scientific <<  modelspace->GetHbarOmega() << endl;
   outfile << " Min and max value of partial wave ang. mom    0   " << modelspace->GetEmax() << endl;
@@ -435,8 +435,8 @@ void ReadWrite::ReadBareTBME_Jason( string filename, Operator& Hbare)
      // if the matrix element is outside the model space, ignore it.
      if (a>=norbits or b>=norbits or c>=norbits or d>=norbits) continue;
      Par = (la+lb)%2;
-//     Hbare.SetTBME(J2/2,Par,Tz2/2,a,b,c,d, tbme ); 
-     Hbare.TwoBody.SetTBME(J2/2,Par,Tz2/2,a,b,c,d, tbme ); 
+//     Hbare.SetTBME(J2/2,Par,Tz2/2,a,b,c,d, tbme );
+     Hbare.TwoBody.SetTBME(J2/2,Par,Tz2/2,a,b,c,d, tbme );
 
   }
 
@@ -450,7 +450,7 @@ void ReadWrite::ReadBareTBME_Jason( string filename, Operator& Hbare)
 /// Matrix elements corresponding to orbits outside the modelspace are ignored.
 void ReadWrite::ReadBareTBME_Navratil( string filename, Operator& Hbare)
 {
-  ifstream infile(filename);  
+  ifstream infile(filename);
   if ( !infile.good() )
   {
     cerr << "************************************" << endl
@@ -687,7 +687,7 @@ void ReadWrite::ReadBareTBME_Darmstadt( string filename, Operator& Hbare, int em
   }
   else if (filename.substr( filename.find_last_of(".")) == ".bin")
   {
-    ifstream infile(filename, ios::binary);    
+    ifstream infile(filename, ios::binary);
     if ( !infile.good() )
     {
       cerr << "problem opening " << filename << ". Exiting." << endl;
@@ -751,7 +751,7 @@ void ReadWrite::Read_Darmstadt_3body( string filename, Operator& Hbare, int E1ma
   }
   else if (extension == ".bin")
   {
-    ifstream infile(filename, ios::binary);    
+    ifstream infile(filename, ios::binary);
     if ( !infile.good() )
     {
       cerr << "problem opening " << filename << ". Exiting." << endl;
@@ -908,7 +908,7 @@ void ReadWrite::ReadBareTBME_Darmstadt_from_stream( T& infile, Operator& Hbare, 
                 Hbare.TwoBody.Set_pn_TBME_from_iso(J,1,0,a,b,c,d,tbme_10*norm_factor);
              }
              if (norm_factor>0.9 or J%2!=0)
-             { 
+             {
                 Hbare.TwoBody.Set_pn_TBME_from_iso(J,0,0,a,b,c,d,tbme_00*norm_factor);
              }
 
@@ -1068,7 +1068,7 @@ void ReadWrite::ReadBareTBME_Darmstadt_from_stream( T& infile, Operator& Hbare, 
 //                //summation bounds for twoJC
 //                int twoJCMin = max( abs(2*Jab - oc.j2), abs(2*JJab - of.j2));
 //                int twoJCMax = min( 2*Jab + oc.j2 , 2*JJab + of.j2 );
-//       
+//
 //                // read all the ME for this range of J,T into block
 //                if (twoJCMin>twoJCMax) continue;
 //                size_t blocksize = ((twoJCMax-twoJCMin)/2+1)*5;
@@ -1095,7 +1095,7 @@ void ReadWrite::ReadBareTBME_Darmstadt_from_stream( T& infile, Operator& Hbare, 
 //                   if ( twoT > min( 2*tab+1, 2*ttab+1) ) continue;
 ////                   int twoTMin = 1; // twoTMin can just be used as 1
 ////                   int twoTMax = min( 2*tab +1, 2*ttab +1);
-//       
+//
 ////                   for(int twoT = twoTMin; twoT <= twoTMax; twoT += 2)
 ////                   {
 //////                    double V;
@@ -1106,7 +1106,7 @@ void ReadWrite::ReadBareTBME_Darmstadt_from_stream( T& infile, Operator& Hbare, 
 //                    bool autozero = false;
 //                    if (oa.l>lmax3 or ob.l>lmax3 or oc.l>lmax3 or od.l>lmax3 or oe.l>lmax3 or of.l>lmax3) V=0;
 //
-//                    
+//
 //
 //                    if ( a==b and (tab+Jab)%2==0 ) autozero = true;
 //                    if ( d==e and (ttab+JJab)%2==0 ) autozero = true;
@@ -1140,7 +1140,7 @@ void ReadWrite::ReadBareTBME_Darmstadt_from_stream( T& infile, Operator& Hbare, 
 //                          goodstate = false;
 //                       }
 //                    }
-//       
+//
 ////                   }//twoT
 //                  }//ttab
 //                 }//tab
@@ -1378,7 +1378,7 @@ void ReadWrite::Read_Darmstadt_3body_from_stream( T& infile, Operator& Hbare, in
 //    while (read_so_far < nread and infile.good())
 //    {
 //      infile.read(buff, BUFFSIZE3N);
-//   //.... other stuff...   
+//   //.... other stuff...
 //    }
     for (size_t i=0;i<nread;++i) infile >> ThreeBME[i];
   }
@@ -1442,10 +1442,10 @@ void ReadWrite::Store_Darmstadt_3body( const vector<float>& ThreeBME, const vect
   size_t nkept = 0;
   modelspace->PreCalculateSixJ(); // Get all the sixJ so we don't have to worry about threading issues
   // combine the first two loops into one to better utilize more threads
-//  #pragma omp parallel for schedule(dynamic,1) reduction(+ : nkept)  
+//  #pragma omp parallel for schedule(dynamic,1) reduction(+ : nkept)
 //  for (int index12=0; index12< nljmax*(nljmax+1)/2; ++index12)
 //  {
-  #pragma omp parallel for schedule(dynamic,1) reduction(+ : nkept)  
+  #pragma omp parallel for schedule(dynamic,1) reduction(+ : nkept)
   for(int nlj1=0; nlj1<nljmax; ++nlj1)
   {
 //    int nlj1 = int( (sqrt(8*index12+1)-1)/2);
@@ -1736,7 +1736,7 @@ void ReadWrite::Read3bodyHDF5( string filename,Operator& op )
   label_buf[0] = new int[label_curDim[0] * label_curDim[1]];
   for (hsize_t i=1; i<label_curDim[0]; ++i)
   {
-    label_buf[i] = label_buf[i-1] + label_curDim[1];  
+    label_buf[i] = label_buf[i-1] + label_curDim[1];
   }
   
   int value_nDim = value_dspace.getSimpleExtentNdims();
@@ -1924,15 +1924,15 @@ void ReadWrite::Read3bodyHDF5_new( string filename,Operator& op )
   value_buf[0] = new float[value_curDim[0] * value_curDim[1]];
   for (hsize_t i=1; i<value_curDim[0]; ++i)
   {
-    value_buf[i] = value_buf[i-1] + value_curDim[1];  
+    value_buf[i] = value_buf[i-1] + value_curDim[1];
   }
 
   value.read(&value_buf[0][0], PredType::NATIVE_FLOAT);
 
   int alpha_max = iDim_basis[0];
 
-//  int i=-5; 
-  long long i=-5; 
+//  int i=-5;
+  long long i=-5;
   for (int alphaspp=0;alphaspp<alpha_max;++alphaspp)
   {
     int lap = dbuf[alphaspp][2];
@@ -1956,7 +1956,7 @@ void ReadWrite::Read3bodyHDF5_new( string filename,Operator& op )
       int c = modelspace->GetOrbitIndex(dbuf[alphasp][7],lc,dbuf[alphasp][9],-1);
       int j12 = dbuf[alphasp][10];
       int jtot = dbuf[alphasp][11];
-      if (jtot != jtotp or (lap+lbp+lcp+la+lb+lc)%2>0) continue; 
+      if (jtot != jtotp or (lap+lbp+lcp+la+lb+lc)%2>0) continue;
       i+=5;
       if (ap>=norb or bp>=norb or cp>=norb) continue;
       if (a>=norb or b>=norb or c>=norb) continue;
@@ -2245,7 +2245,7 @@ void ReadWrite::Read2bCurrent_Navratil( string filename, Operator& Op)
 
 uint64_t Petr2BC_hash(uint64_t a, uint64_t b, uint64_t c, uint64_t d, uint64_t jab, uint64_t jcd, uint64_t tab, uint64_t tcd )
 {
-  return    a + (b <<8 ) + (c << 16) + (d << 24) + (jab << 32) + (jcd << 40) + (tab << 48) + (tcd << 56); 
+  return    a + (b <<8 ) + (c << 16) + (d << 24) + (jab << 32) + (jcd << 40) + (tab << 48) + (tcd << 56);
 }
 
 
@@ -3184,7 +3184,7 @@ void ReadWrite::WriteAntoine_input(Operator& op, string filename,int A, int Z)
    int Acore = modelspace->GetAref(); // Final interaction should have ref = core
    int Zcore = modelspace->GetZref(); // Final interaction should have ref = core
    int Aval = A-Acore;
-   int Zval = Z-Zcore; 
+   int Zval = Z-Zcore;
    int MPRO = Aval%2; // M projection to use
    vector<int> JVAL = {MPRO,MPRO+2,MPRO+4,MPRO+6}; // 2*J values to calculate
    int N_for_each_J = 2; // number to calculate for each J. This could be different for each, if desired.
@@ -3700,7 +3700,7 @@ void ReadWrite::WriteOneBody_Takayuki(string filename, Operator& Hbare)
       if (abs(me) > 1e-7)
       {
       outfile << setw(3) << oa.tz2 << " " << setw(3) << orbits_remap.at(a) << " "
-              << setw(3) << ob.tz2 << " " << setw(3) << orbits_remap.at(b) << " " 
+              << setw(3) << ob.tz2 << " " << setw(3) << orbits_remap.at(b) << " "
               << setw(12) << setprecision(8) <<  me << endl;
       }
     }
@@ -4019,7 +4019,7 @@ void ReadWrite::ReadTwoBodyMihai(string filename, Operator& Op)
 // put in by CP
 // takes in a string s, removes the substring p
 void ReadWrite::removeSubstr(string& s, string& p)
-{ 
+{
   string::size_type n = p.length();
   for (string::size_type i = s.find(p); i != string::npos; i = s.find(p))
   {
@@ -4093,10 +4093,10 @@ void ReadWrite::ReadRelCMOpFromJavier( string statefilename, string MEfilename, 
   {
     state_t& bra = statelist[bra_index];
     state_t& ket = statelist[ket_index];
-    cout << bra.n << " " <<  bra.lam << " " <<  bra.N << " " <<  bra.LAM << " " <<  bra.L << " " <<  bra.S << " " <<  bra.J << " " <<  bra.T << " " <<  bra.Tz << " " 
-         << ket.n << " " <<  ket.lam << " " <<  ket.N << " " <<  ket.LAM << " " <<  ket.L << " " <<  ket.S << " " <<  ket.J << " " <<  ket.T << " " <<  ket.Tz << " " 
+    cout << bra.n << " " <<  bra.lam << " " <<  bra.N << " " <<  bra.LAM << " " <<  bra.L << " " <<  bra.S << " " <<  bra.J << " " <<  bra.T << " " <<  bra.Tz << " "
+         << ket.n << " " <<  ket.lam << " " <<  ket.N << " " <<  ket.LAM << " " <<  ket.L << " " <<  ket.S << " " <<  ket.J << " " <<  ket.T << " " <<  ket.Tz << " "
          << "(" << bra_index << "," << ket_index << ") " << MErel << " " <<  MEcm << endl;
-    Op.TwoBody.AddToTBME_RelCM(bra.n, bra.lam, bra.N, bra.LAM, bra.L, bra.S, bra.J, bra.T, bra.Tz, 
+    Op.TwoBody.AddToTBME_RelCM(bra.n, bra.lam, bra.N, bra.LAM, bra.L, bra.S, bra.J, bra.T, bra.Tz,
                                ket.n, ket.lam, ket.N, ket.LAM, ket.L, ket.S, ket.J, ket.T, ket.Tz, MErel, MEcm);
   }
 
