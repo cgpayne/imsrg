@@ -237,10 +237,10 @@ for (A,Z) in [(48,20)]: # Ca48
     #ARGS['valence_space'] = 'Ca48' # for Jiangming
   elif A == 76 and Z == 32:
     ARGS['valence_space'] = 'pf5g9' # this is just a label when custom_valence_space is set
-    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44
+    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44pn
   elif A == 82 and Z == 34:
     ARGS['valence_space'] = 'pf5g9' # this is just a label when custom_valence_space is set
-    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44
+    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44pn
   else:
     print 'these *A and Z* have not been set up yet!'
     print 'exiting...'

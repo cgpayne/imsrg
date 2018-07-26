@@ -93,7 +93,8 @@ I recommend using this OpenBLAS->MKL change because it allows full parallelizati
 
 
 Added my own versions of Ragnar's python script in order to run imsrg++ from either the cougar cluster or the oak cluster.
-They won't necessarily run on your user/machine, but with some tweaking, it should work!
+As of July 26 2018, goOak.py is more up to date than goCougar.py.
+It won't necessarily run on your user/machine, but with some tweaking, it should work!
     -> work/scripts/goCougar.sh
     -> work/scripts/goOak.sh
         => src/Makefile

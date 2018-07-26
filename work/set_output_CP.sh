@@ -27,12 +27,25 @@ CPsafe(){
   cd ..
 }
 
+inparam=${1}
+inans='off'
+if [ -z $inparam ]
+then
+  inparam='off'
+  echo 'this script will do a znewrecord.sh (not recommended if runs are currently in progress) in each directory...'
+  echo 'are you sure you want to do this? (Y/N)'
+  read inans
+fi
+if [ $inans = 'y' ] || [ $inans = 'Y' ] || [ $inparam = 'true' ]
+then
+  CPclean $dirc1
 
-CPclean $dirc1
-
-CPsafe $dirs1
-CPsafe $dirs2
-CPsafe $dirs3
-CPsafe $dirs4
-CPsafe $dirs5
-CPsafe $dirs6
+  CPsafe $dirs1
+  CPsafe $dirs2
+  CPsafe $dirs3
+  CPsafe $dirs4
+  CPsafe $dirs5
+  CPsafe $dirs6
+else
+  echo 'safely exiting...'
+fi

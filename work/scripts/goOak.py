@@ -68,7 +68,7 @@ MNU['int'] = 'magic' # hw = 16,24
 #MNU['int'] = 'v3trans' # hw = 14
 #MNU['BB'] = 'NN'
 MNU['BB'] = '3N'
-#MNU['BB'] = 'HF' # only for 'BARE' int
+#MNU['BB'] = 'HF'
 #MNU['BB'] = 'OS' # only for 'BARE' int
 #MNU['gap'] = 'on' # this functionality might not actually be useful... talk to Ragnar...
 MNU['gap'] = 'off'
@@ -125,7 +125,7 @@ ARGS['method'] = 'magnus'
 #ARGS['method'] = 'NSmagnus'
 #ARGS['method'] = 'brueckner'
 #ARGS['method'] = 'flow'
-#ARGS['method'] = 'HF'
+#ARGS['method'] = 'HF' # not too sure what this is about...
 #ARGS['method'] = 'MP3'
 #ARGS['method'] = 'FCI'
 print 'method    = ',ARGS['method']
@@ -170,13 +170,10 @@ time srun %s
 if MNU['int'] == 'BARE':
   print 'running BARE-style...'
   ARGS['file2e1max'] = '0 file2e2max=0 file2lmax=0' # I don't think...
-  ARGS['file3e1max'] = '0 file3e2max=0 file3e3max=0' # ...this is necessary
-  if MNU['BB'] == 'HF':
-    ARGS['e3max'] = '14' # is this right?
-  elif MNU['BB'] == 'OS':
-    ARGS['e3max'] = '0'
-  else:
-    print 'for MNU[int] = BARE, chose MNU[BB] = HF or OS'
+  ARGS['file3e1max'] = '0 file3e2max=0 file3e3max=0' # ...this is necessary...
+  ARGS['e3max'] = '0' # ...but, oh well
+  if MNU['BB'] != 'OS':
+    print 'for MNU[int] = BARE, choose MNU[BB] = OS'
     print 'exiting...'
     exit()
 elif MNU['int'] == 'magic':
@@ -225,16 +222,18 @@ for (A,Z) in [(48,20)]: # Ca48
     #ARGS['valence_space'] = 'Ca48' # for Jiangming
   elif A == 76 and Z == 32:
     ARGS['valence_space'] = 'pf5g9' # this is just a label when custom_valence_space is set
-    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44
+    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44pn
   elif A == 82 and Z == 34:
     ARGS['valence_space'] = 'pf5g9' # this is just a label when custom_valence_space is set
-    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44
+    ARGS['custom_valence_space'] = 'Ni56,p0f5,n0f5,p1p3,n1p3,p1p1,n1p1,p0g9,n0g9' # AKA: Ni56 core with jj44pn
   else:
     print 'these *A and Z* have not been set up yet!'
     print 'exiting...'
     exit()
   print 'v.sp.     = ',ARGS['valence_space']
   #for hw in [10.49]:
+  #for hw in [9.230]:
+  #for hw in [9.033]:
   #for hw in [10]:
   #for hw in [8,12,16,20,24,28,32,36,40]:
   #for hw in [12,16,20,24,28]:
@@ -279,20 +278,17 @@ for (A,Z) in [(48,20)]: # Ca48
           exit()
         ### Set the interaction (int)
         if MNU['int'] == 'BARE':
-          print 'running BARE version...' # interaction files don't matter for BARE operator
+          print 'running BARE version (no IMSRG evolution)...' # interaction files don't matter for BARE operator
           ARGS['2bme'] = 'none'
           ARGS['3bme'] = 'none'
           ARGS['LECs'] = 'none'
-          if MNU['BB'] == 'HF':
-            print 'running with HF basis...' # what does this even mean with smax=0?
-          elif MNU['BB'] == 'OS':
-            print 'running with OS basis...'
-            ARGS['basis'] = 'oscillator'
+          print 'running with OS basis...'
+          ARGS['basis'] = 'oscillator'
         else:
           if MNU['BB'] == 'HF':
-            print 'running with HF basis...'
+            print 'running with HF basis (no IMSRG evolution)...'
           else:
-            print 'running IMSRG version...'
+            print 'running full IMSRG version...'
           if MNU['int'] == 'magic':
             #ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
             ARGS['2bme'] = '/global/scratch/exch/me2j/fromJohannes/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
