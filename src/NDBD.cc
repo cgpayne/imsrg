@@ -33,58 +33,56 @@ using namespace imsrg_util;
 
 
 /// My personal GSL integration error handling
+/// NOTE: must put "#pragma omp critical" calls around this function when calling it in the code
 /// NOTE: in order to use this, one must set "gsl_set_error_handler_off();" beforehand
   void cpGSLerror(string errstr, int status, size_t limit, double epsabs, double epsrel, double abserr, double result, int n, int l, int np, int lp)
   {
     if (status)
     {
-      #pragma omp critical
+      cout<<"WARNING "<<errstr;
+      if (status == GSL_EMAXITER)
       {
-        cout<<"WARNING "<<errstr;
-        if (status == GSL_EMAXITER)
-        {
-          cout<<" the maximum number of subdivisions was exceeded."<<endl;
-        }
-        else if (status == GSL_EROUND)
-        {
-          cout<<" cannot reach tolerance because of roundoff error, or roundoff error was detected in the extrapolation table."<<endl;
-        }
-        else if (status == GSL_ESING)
-        {
-          cout<<" a non-integrable singularity or other bad integrand behavior was found in the integration interval."<<endl;
-        }
-        else if (status == GSL_EDIVERGE)
-        {
-          cout<<" the integral is divergent, or too slowly convergent to be integrated numerically."<<endl;
-        }
-        else
-        {
-          cout<<"apparently I'm missing a GSL error status handle..."<<endl;
-        }
-        cout<<"limit  = "<<limit<<endl;
-        cout<<"epsabs = "<<cpFormat(epsabs)<<endl;
-        cout<<"epsrel = "<<cpFormat(epsrel)<<endl;
-        cout<<"abserr = "<<cpFormat(abserr)<<endl;
-        cout<<"result = "<<setprecision(12)<<result<<endl;
-        cout<<"n = "<<n<<", l = "<<l<<", np = "<<np<<", lp = "<<lp<<endl;
-        double errat = abs(abserr/result);
-        if (errat <= epsrel) // this if-else is a last resort, but only seems to rarely trigger for Tensor with high emax for a few n,l,np,lp
-        {
-          cout<<"moving forward since abs(abserr/result) = "<<cpFormat(errat)<<" <= epsrel..."<<endl;
-        }
-        else if (abserr <= epsabs)
-        {
-          cout<<"moving forward since abserr <= epsabs..."<<endl;
-        }
-        else
-        {
-          cout<<"ERROR 37728: my GSL integration failed! :("<<endl;
-          cout<<"we have a GSL error status (see the warning above)"<<endl;
-          cout<<"and abs(abserr/result) = "<<cpFormat(errat)<<" > epsrel..."<<endl;
-          cout<<"and abserr > epsabs..."<<endl;
-          cout<<"therefore exiting..."<<endl;
-          exit(1);
-        }
+        cout<<" the maximum number of subdivisions was exceeded."<<endl;
+      }
+      else if (status == GSL_EROUND)
+      {
+        cout<<" cannot reach tolerance because of roundoff error, or roundoff error was detected in the extrapolation table."<<endl;
+      }
+      else if (status == GSL_ESING)
+      {
+        cout<<" a non-integrable singularity or other bad integrand behavior was found in the integration interval."<<endl;
+      }
+      else if (status == GSL_EDIVERGE)
+      {
+        cout<<" the integral is divergent, or too slowly convergent to be integrated numerically."<<endl;
+      }
+      else
+      {
+        cout<<"apparently I'm missing a GSL error status handle..."<<endl;
+      }
+      cout<<"limit  = "<<limit<<endl;
+      cout<<"epsabs = "<<cpFormat(epsabs)<<endl;
+      cout<<"epsrel = "<<cpFormat(epsrel)<<endl;
+      cout<<"abserr = "<<cpFormat(abserr)<<endl;
+      cout<<"result = "<<setprecision(12)<<result<<endl;
+      cout<<"n = "<<n<<", l = "<<l<<", np = "<<np<<", lp = "<<lp<<endl;
+      double errat = abs(abserr/result);
+      if (errat <= epsrel) // this if-else is a last resort, but only seems to rarely trigger for Tensor with high emax for a few n,l,np,lp
+      {
+        cout<<"moving forward since abs(abserr/result) = "<<cpFormat(errat)<<" <= epsrel..."<<endl;
+      }
+      else if (abserr <= epsabs)
+      {
+        cout<<"moving forward since abserr <= epsabs..."<<endl;
+      }
+      else
+      {
+        cout<<"ERROR 37728: my GSL integration failed! :("<<endl;
+        cout<<"we have a GSL error status (see the warning above)"<<endl;
+        cout<<"and abs(abserr/result) = "<<cpFormat(errat)<<" > epsrel..."<<endl;
+        cout<<"and abserr > epsabs..."<<endl;
+        cout<<"therefore exiting..."<<endl;
+        exit(1);
       }
     }
   }
@@ -167,7 +165,10 @@ using namespace imsrg_util;
     statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // (for debugging) perform the qag integration (over r)
     */
     statusr = gsl_integration_qagiu(&Fr,r1,epsabsr,epsrelr,limitr,workspacer,&rbme,&abserrr); // perform the qagiu integration (over r)
-    cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    #pragma omp critical
+    {
+      cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    }
     gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
     return rbme;
   }
@@ -306,7 +307,10 @@ using namespace imsrg_util;
     statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // (for debugging) perform the qag integration (over r)
     */
     statusr = gsl_integration_qagiu(&Fr,r1,epsabsr,epsrelr,limitr,workspacer,&rbme,&abserrr); // perform the qagiu integration (over r)
-    cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    #pragma omp critical
+    {
+      cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    }
     gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
     return rbme;
   }
@@ -731,7 +735,10 @@ using namespace imsrg_util;
       cout<<"dqswitch = "<<dqswitch<<endl;
       exit(1);
     }
-    cpGSLerror(errstrq,statusq,limitq,epsabsq,epsrelq,abserrq,resultq,n,l,np,lp); // check if the GSL integration worked
+    #pragma omp critical
+    {
+      cpGSLerror(errstrq,statusq,limitq,epsabsq,epsrelq,abserrq,resultq,n,l,np,lp); // check if the GSL integration worked
+    }
     gsl_integration_workspace_free(workspaceq); // free the allocated memory for the integration workspace, since GSL is written in C
     /*
     cout<<"limitq = "<<limitq<<endl; // debugging...
