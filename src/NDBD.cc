@@ -143,7 +143,7 @@ using namespace imsrg_util;
   }
 
 
-/// This calculates the gsl_integration_qagiu wrt dr of the RBMEs
+/// This calculates the gsl_integration_qagiu (QAGIU) wrt dr of the RBMEs
 /// NONE => SRCs are *not* employed here
   double rbmeNONEqagiu(double hw, int rho, double x, int n, int l, int np, int lp)
   {
@@ -161,12 +161,34 @@ using namespace imsrg_util;
     double epsrelr = NDBD_R_REL; // relative error tolerance for the adaptive integration
     double rbme = 0; // qagiu integration result
     double abserrr; // qagiu integration error estimate
-    /*
-    double r2 = 10000; // (for debugging) integrate over [r1,r2] ~= [0,Inf), so make r2 reasonably large
-    double GKkeyr = 6; // (for debugging) 6 => 61 point Gauss-Kronrod quadrature
-    statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // (for debugging) perform the qag integration (over r)
-    */
     statusr = gsl_integration_qagiu(&Fr,r1,epsabsr,epsrelr,limitr,workspacer,&rbme,&abserrr); // perform the qagiu integration (over r)
+    cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
+    return rbme;
+  }
+
+
+/// This calculates the gsl_integration_qag (QAG) wrt dr of the RBMEs
+/// NONE => SRCs are *not* employed here
+  double rbmeNONEqag(double hw, int rho, double x, int n, int l, int np, int lp)
+  {
+    gsl_set_error_handler_off(); // set standard GSL error handling off, so I can do my own
+    int statusr; // this will hold the GSL error status
+    string errstrr="7828877-2: qag dr:"; // a unique GSL error string
+    size_t limitr = NDBD_R_LIMIT; // the number of double precision intervals that can be held by the workspace below
+    gsl_integration_workspace * workspacer = gsl_integration_workspace_alloc(limitr); // GSL: "One workspace may be used multiple times...", "...workspaces should be allocated on a per-thread basis."
+    double frparams[] = {hw, (double)rho, x, (double)n, (double)l, (double)np, (double)lp};
+    gsl_function Fr;
+    Fr.function = &frRBME; // frRBME is defined above
+    Fr.params = &(frparams[0]); // just need address of the first element of array, because the rest are sequential
+    double r1 = 0; // starting r for the integration is zero by definition, don't change this
+    double r2 = NDBD_R_RB; // we integrate over [r1,r2] ~= [0,Inf), so make r2 [fm] reasonably large
+    double epsabsr = NDBD_R_ABS; // absolute error tolerance for the integration
+    double epsrelr = NDBD_R_REL; // relative error tolerance for the adaptive integration
+    double rbme = 0; // qag integration result
+    double abserrr; // qag integration error estimate
+    double GKkeyr = 6; // (for debugging) 6 => 61 point Gauss-Kronrod quadrature
+    statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // perform the qag integration (over r)
     cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
     gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
     return rbme;
@@ -282,13 +304,13 @@ using namespace imsrg_util;
   }
 
 
-/// This calculates the gsl_integration_qagiu wrt dr of the RBMEs, with SRCs
+/// This calculates the gsl_integration_qagiu (QAGIU) wrt dr of the RBMEs, with SRCs
 /// SRC => SRCs are employed here
   double rbmeSRCqagiu(double hw, int rho, double x, int n, int l, int np, int lp, double a, double b, double c)
   {
     gsl_set_error_handler_off(); // set standard GSL error handling off, so I can do my own
     int statusr; // this will hold the GSL error status
-    string errstrr="7828877-2: qagiu dr:"; // a unique GSL error string
+    string errstrr="7828877-3: qagiu dr:"; // a unique GSL error string
     size_t limitr = NDBD_R_LIMIT; // the number of double precision intervals that can be held by the workspace below
     gsl_integration_workspace * workspacer = gsl_integration_workspace_alloc(limitr); // GSL: "One workspace may be used multiple times...", "...workspaces should be allocated on a per-thread basis."
     double frparams[] = {hw, (double)rho, x, (double)n, (double)l, (double)np, (double)lp, (double)a, (double)b, (double)c};
@@ -300,12 +322,34 @@ using namespace imsrg_util;
     double epsrelr = NDBD_R_REL; // relative error tolerance for the adaptive integration
     double rbme = 0; // qagiu integration result
     double abserrr; // qagiu integration error estimate
-    /*
-    double r2 = 10000; // (for debugging) integrate over [r1,r2] ~= [0,Inf), so make r2 reasonably large
-    double GKkeyr = 6; // (for debugging) 6 => 61 point Gauss-Kronrod quadrature
-    statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // (for debugging) perform the qag integration (over r)
-    */
     statusr = gsl_integration_qagiu(&Fr,r1,epsabsr,epsrelr,limitr,workspacer,&rbme,&abserrr); // perform the qagiu integration (over r)
+    cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
+    gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
+    return rbme;
+  }
+
+
+/// This calculates the gsl_integration_qag (QAG) wrt dr of the RBMEs, with SRCs
+/// SRC => SRCs are employed here
+  double rbmeSRCqag(double hw, int rho, double x, int n, int l, int np, int lp, double a, double b, double c)
+  {
+    gsl_set_error_handler_off(); // set standard GSL error handling off, so I can do my own
+    int statusr; // this will hold the GSL error status
+    string errstrr="7828877-4: qag dr:"; // a unique GSL error string
+    size_t limitr = NDBD_R_LIMIT; // the number of double precision intervals that can be held by the workspace below
+    gsl_integration_workspace * workspacer = gsl_integration_workspace_alloc(limitr); // GSL: "One workspace may be used multiple times...", "...workspaces should be allocated on a per-thread basis."
+    double frparams[] = {hw, (double)rho, x, (double)n, (double)l, (double)np, (double)lp, (double)a, (double)b, (double)c};
+    gsl_function Fr;
+    Fr.function = &frRBMEjt; // frRBMEjt is defined above
+    Fr.params = &(frparams[0]); // just need address of the first element of array, because the rest are sequential
+    double r1 = 0; // starting r for the integration is zero by definition, don't change this
+    double r2 = NDBD_R_RB; // we integrate over [r1,r2] ~= [0,Inf), so make r2 [fm] reasonably large
+    double epsabsr = NDBD_R_ABS; // absolute error tolerance for the integration
+    double epsrelr = NDBD_R_REL; // relative error tolerance for the adaptive integration
+    double rbme = 0; // qag integration result
+    double abserrr; // qaq integration error estimate
+    double GKkeyr = 6; // (for debugging) 6 => 61 point Gauss-Kronrod quadrature
+    statusr = gsl_integration_qag(&Fr,r1,r2,epsabsr,epsrelr,limitr,GKkeyr,workspacer,&rbme,&abserrr); // perform the qag integration (over r)
     cpGSLerror(errstrr,statusr,limitr,epsabsr,epsrelr,abserrr,rbme,n,l,np,lp); // check if the GSL integration worked
     gsl_integration_workspace_free(workspacer); // free the allocated memory for the integration workspace, since GSL is written in C
     return rbme;
@@ -715,12 +759,12 @@ using namespace imsrg_util;
     double abserrq; // qag(iu) integration error estimate
     if (dqswitch == NDBD_INT_QAGIU)
     {
-      errstrq = "7828877-3: qagiu dq:";
+      errstrq = "7828877-5: qagiu dq:";
       statusq = gsl_integration_qagiu(&Fq,q1,epsabsq,epsrelq,limitq,workspaceq,&resultq,&abserrq); // perform the qagiu integration (over q)
     }
     else if (dqswitch == NDBD_INT_QAG)
     {
-      errstrq = "7828877-4: qag dq:";
+      errstrq = "7828877-6: qag dq:";
       double q2 = NDBD_Q_QB; // integrate over [q1,q2] ~= [0,Inf), so make q2 [MeV] reasonably large
       double GKkeyq = 6; // 6 => 61 point Gauss-Kronrod quadrature
       statusq = gsl_integration_qag(&Fq,q1,q2,epsabsq,epsrelq,limitq,GKkeyq,workspaceq,&resultq,&abserrq); // perform the qag integration (over q)
