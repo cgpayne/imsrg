@@ -63,18 +63,20 @@
 #define NDBD_R0     1.2       // [fm]
 */
 
-#define NDBD_R_LIMIT 10000 // max number of subintervals for integration wrt dr
-#define NDBD_R_ABS   1e-7  // absolute error tolerance for integration wrt dr:  "converged" if abs[x(i) - x(i-1)] < epsabs...
-#define NDBD_R_REL   1e-5  // relative " " " " " dr:                            ...or "converged" if abs[1 - x(i)/x(i-1)] < epsrel
-#define NDBD_Q_LIMIT 10000 // max number of subintervals for integration wrt dq
-#define NDBD_Q_ABS   1e-7  // absolute error tolerance for integration wrt dq:  "converged" if abs[x(i) - x(i-1)] < epsabs...
-#define NDBD_Q_REL   1e-4  // relative " " " " " dq:                            ...or "converged" if abs[1 - x(i)/x(i-1)] < epsrel
+#define NDBD_R_LIMIT 10000  // max number of subintervals for integration wrt dr
+#define NDBD_R_ABS   1e-7   // absolute error tolerance for integration wrt dr:  "converged" if abs[x(i) - x(i-1)] < epsabs...
+#define NDBD_R_REL   1e-5   // relative " " " " " dr:                            ...or "converged" if abs[1 - x(i)/x(i-1)] < epsrel
+#define NDBD_R_RB    1e+4   // when using QAG, we integrate over [RA,RB] ~= [0,Inf), so make RB [fm] reasonably large (reasonable value = ????)
+#define NDBD_Q_LIMIT 10000  // max number of subintervals for integration wrt dq
+#define NDBD_Q_ABS   1e-7   // absolute error tolerance for integration wrt dq:  "converged" if abs[x(i) - x(i-1)] < epsabs...
+#define NDBD_Q_REL   1e-4   // relative " " " " " dq:                            ...or "converged" if abs[1 - x(i)/x(i-1)] < epsrel
+#define NDBD_Q_QB    2.5e+3 // when using QAG, we integrate over [QA,QB] ~= [0,Inf), so make QB [MeV] reasonably large (reasonable value = ????)
 
 #define NDBD_GT  "GT" // Gamow-Teller
 #define NDBD_F   "F"  // Fermi
 #define NDBD_T   "T"  // Tensor
 #define NDBD_PSH "PSH" // Payne-Storberg-Holt method
-//#define NDBD_JE  "JE"  // Jonh Engel method
+//#define NDBD_JE  "JE"  // Jonh Engel method (intended to code this at some point for benchmarking... never did...)
 
 #define NDBD_SRC_AV18  "AV18"           // AKA: Argonne V18 potential
 #define NDBD_SRC_CDB   "CD-Bonn"        // AKA: charge-dependent Bonn potential

@@ -721,7 +721,7 @@ using namespace imsrg_util;
     else if (dqswitch == NDBD_INT_QAG)
     {
       errstrq = "7828877-4: qag dq:";
-      double q2 = 2500; // integrate over [q1,q2] ~= [0,Inf), so make q2 reasonably large
+      double q2 = NDBD_Q_QB; // integrate over [q1,q2] ~= [0,Inf), so make q2 [MeV] reasonably large
       double GKkeyq = 6; // 6 => 61 point Gauss-Kronrod quadrature
       statusq = gsl_integration_qag(&Fq,q1,q2,epsabsq,epsrelq,limitq,GKkeyq,workspaceq,&resultq,&abserrq); // perform the qag integration (over q)
     }
@@ -1057,9 +1057,11 @@ using namespace imsrg_util;
     header<<" dr |  GSL limit        =  "<<NDBD_R_LIMIT<<endl;
     header<<" dr |  abstol           =  "<<cpFormat(NDBD_R_ABS)<<endl;
     header<<" dr |  reltol           =  "<<cpFormat(NDBD_R_REL)<<endl;
+    header<<" dr |  QAG rmax         =  "<<cpFormat(NDBD_R_RB)<<endl;
     header<<" dq || GSL limit        =  "<<NDBD_Q_LIMIT<<endl;
     header<<" dq || abstol           =  "<<cpFormat(NDBD_Q_ABS)<<endl;
     header<<" dq || reltol           =  "<<cpFormat(NDBD_Q_REL)<<endl;
+    header<<" dq || QAG qmax         =  "<<cpFormat(NDBD_Q_QB)<<endl;
     header<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
     header<<" reduced?               =  ";
     if (reduced == "NR")
