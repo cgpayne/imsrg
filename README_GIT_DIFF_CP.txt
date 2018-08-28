@@ -94,7 +94,10 @@ I recommend using this OpenBLAS->MKL change because it allows full parallelizati
 
 Added my own versions of Ragnar's python script in order to run imsrg++ from either the cougar cluster or the oak cluster.
 As of July 26 2018, goOak.py is more up to date than goCougar.py.
-It won't necessarily run on your user/machine, but with some tweaking, it should work!
+I have it set up so that GT, F, and/or T M0nu calculations will run on separate nodes (with identical Hamiltonians), since I wanted to spread my use of memory / node resources for the dq integrals.
+However, Ragnar has made it possible for the opnames-from-string to be parsed such that many operators can be submitted/evolved simultaneously/consistently
+I should write in a (commented out) example of how to execute it this (^) way...
+Anyhoo - these scripts won't necessarily run on your user/machine, but with some tweaking, it should work!
     -> work/scripts/goCougar.sh
     -> work/scripts/goOak.sh
         => src/Makefile

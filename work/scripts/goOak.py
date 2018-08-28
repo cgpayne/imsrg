@@ -65,6 +65,7 @@ MNU['SRC'] = 'none'
 #MNU['SRC'] = 'Miller-Spencer'
 #MNU['int'] = 'BARE' # hw = 45*A^{-1/3} - 25*A^{-2/3}
 MNU['int'] = 'magic' # hw = 16,24
+#MNU['int'] = 'mag16' # hw = 16
 #MNU['int'] = 'v3trans' # hw = 14
 #MNU['BB'] = 'NN'
 MNU['BB'] = '3N'
@@ -181,6 +182,11 @@ elif MNU['int'] == 'magic':
   ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=14'
   ARGS['file3e1max'] = '14 file3e2max=28 file3e3max=14'
   ARGS['e3max'] = '14'
+elif MNU['int'] == 'mag16':
+  print 'running Johannes-style int, higher e3max...'
+  ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=14'
+  ARGS['file3e1max'] = '14 file3e2max=28 file3e3max=16'
+  ARGS['e3max'] = '16'
 elif MNU['int'] == 'v3trans':
   print 'running GTquenching-style int...'
   ARGS['file2e1max'] = '14 file2e2max=28 file2lmax=14'
@@ -246,16 +252,18 @@ for (A,Z) in [(48,20)]: # Ca48
     print 'hw        = ',hw
     print '======================='
     #for e in [6,8,10,12,14]:
+    #for e in [7,9,11,13]
     #for e in [6,8,10,12]:
     #for e in [6,8,10]:
     #for e in [6,8]:
-    for e in [10]:
+    for e in [13]:
       ARGS['emax'] = '%d'%e
       print '-----------------------'
       print 'e         = ',e
       print '-----------------------'
       #for MNU['Decay'] in ['GT','F','T','2','2c']:
       for MNU['Decay'] in ['GT','F','T']:
+      #for MNU['Decay'] in ['GT','T']:
       #for MNU['Decay'] in ['GT','F']:
       #for MNU['Decay'] in ['GT']:
       #for MNU['Decay'] in ['F']:
@@ -282,7 +290,7 @@ for (A,Z) in [(48,20)]: # Ca48
           ARGS['2bme'] = 'none'
           ARGS['3bme'] = 'none'
           ARGS['LECs'] = 'none'
-          print 'running with OS basis...'
+          print 'running with OS basis (no IMSRG evolution)...'
           ARGS['basis'] = 'oscillator'
         else:
           if MNU['BB'] == 'HF':
@@ -290,15 +298,18 @@ for (A,Z) in [(48,20)]: # Ca48
           else:
             print 'running full IMSRG version...'
           if MNU['int'] == 'magic':
-            #ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
             ARGS['2bme'] = '/global/scratch/exch/me2j/fromJohannes/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
+          if MNU['int'] == 'mag16':
+            ARGS['2bme'] = '/global/scratch/exch/ME_share/vnn_hw%d.00_kvnn10_lambda1.80_mesh_kmax_7.0_100_pc_R15.00_N15.dat_to_me2j.gz'%(hw)
           elif MNU['int'] == 'v3trans':
             ARGS['2bme'] = '/global/scratch/cgpayne/interactions/misc/TBMEA2n4lo500-srg2.0_14_28.%d_TUD.int.gz'%(hw)
           if MNU['BB'] == '3N' or MNU['BB'] == 'HF':
             print 'running for 3N...'
             if MNU['int'] == 'magic':
-              #ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
               ARGS['3bme'] = '/global/scratch/exch/me3j/fromJohannes/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_14_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
+              ARGS['LECs'] = 'EM1.8_2.0'
+            if MNU['int'] == 'mag16':
+              ARGS['3bme'] = '/global/scratch/exch/ME_share/jsTNF_Nmax_16_J12max_8_hbarOmega_%d.00_Fit_cutoff_2.00_nexp_4_c1_1.00_c3_1.00_c4_1.00_cD_1.00_cE_1.00_2pi_0.00_2pi1pi_0.00_2picont_0.00_rings_0.00_J3max_9_new_E3_16_e_14_ant_EM1.8_2.0.h5_to_me3j.gz'%(hw)
               ARGS['LECs'] = 'EM1.8_2.0'
             elif MNU['int'] == 'v3trans':
               ARGS['3bme'] = '/global/scratch/cgpayne/interactions/misc/v3trans_J3T3.int_NNn4lo5003Nloc650nonloc500cD045cEm003-srg2.0_from20_330_161615_%d_form.gz'%(hw)

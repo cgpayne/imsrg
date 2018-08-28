@@ -1,5 +1,4 @@
 *.tar.gz
-*.DS_Store
 src/imsrg++
 src/tmp*
 src/.*.swp

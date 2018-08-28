@@ -177,5 +177,6 @@ do
   cd $basedir/M0nu # this is necessary for next loop, derp
 done
 
+cat $myre
 
 ## FIN
