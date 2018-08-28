@@ -14,6 +14,7 @@ CPclean(){
   mkdir $mydir
   cd $mydir
   cp $IMASMS/zscripts/z*.sh .
+  cp ../zz_for_PrintIntegrand/* .
   ./znewrecord.sh
   cd ..
 }
