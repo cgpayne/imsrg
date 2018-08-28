@@ -15,33 +15,33 @@ hw=10.00
 
 ## DO: M0nu_adpt
 
-##Decay=GT
-##Decay=F
-#Decay=T
-#Reduced=NR
-##Reduced=R
-#Ec=7.72
-#SRC=none
-##SRC=AV18
-##SRC=CD-Bonn
-##SRC=Miller-Spencer
-##SRC=debug
-#Operators=M0nu_adpt_${dirout}_${Decay}_${Reduced}_${Ec}_${SRC}
+#Decay=GT
+#Decay=F
+Decay=T
+Reduced=NR
+#Reduced=R
+Ec=7.72
+SRC=none
+#SRC=AV18
+#SRC=CD-Bonn
+#SRC=Miller-Spencer
+#SRC=debug
+Operators=M0nu_adpt_${dirout}_${Decay}_${Reduced}_${Ec}_${SRC}
 
 ## OR: M0nu_Print_Integrand
 
-#Mode=0 # print first, integrate later
-Mode=1 # integrate first, print later
-Ec=7.72
-SRC=none
-nn=10
-ll=9
-np=10
-lp=9
-qa=0
-qb=1000
-Operators=M0nu_PrintIntegrand_${dirout}_${Mode}_${Ec}_${SRC}_${nn}_${ll}_${np}_${lp}_${qa}_${qb}
-whamit=1 # set this to one to automatically do wham.sh below
+##Mode=0 # print first, integrate later
+#Mode=1 # integrate first, print later
+#Ec=7.72
+#SRC=none
+#nn=10
+#ll=9
+#np=10
+#lp=9
+#qa=0
+#qb=1000
+#Operators=M0nu_PrintIntegrand_${dirout}_${Mode}_${Ec}_${SRC}_${nn}_${ll}_${np}_${lp}_${qa}_${qb}
+#whamit=1 # set this to one to automatically do wham.sh below
 
 
 # the NumLine's below are for the M0nu TBME! (OLD)
@@ -74,7 +74,7 @@ whamit=1 # set this to one to automatically do wham.sh below
 #NumLine=36641676
 
 
-valence_space="fp-shell" # has to be a valid space, even if not used...
+valence_space="fp-shell" # has to be a valid space, even if not used, seems weird - should probs tell Ragnar...
 reference="Ca$A" # same deal...
 
 $exe emax=${emax} valence_space=${valence_space} hw=${hw} reference=${reference} Operators=${Operators} A=${A} intfile=${intfile}
