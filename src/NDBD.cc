@@ -746,6 +746,7 @@ using namespace imsrg_util;
     cout<<"epsrelq = "<<epsrelq<<endl;
     cout<<"abserrq = "<<abserrq<<endl; // ...debugging
     */
+    cout<<"in dqdrPSH: n="<<n<<", l="<<l<<", np="<<np<<", lp="<<lp<<"; resultq = "<<resultq<<endl; // debugging (wtf)
     return resultq;
   }
 
@@ -842,6 +843,7 @@ using namespace imsrg_util;
         uint64_t n,l,np,lp; // get these from IntUnHash below
         IntUnHash(key,n,l,np,lp);
         IntList[key] = dqdrPSH(n,l,np,lp); // these have been ordered by the above loops such that we take the "lowest" value of decimalgen(n,l,np,lp,maxl,maxnp,maxlp), see GetIntegral(...)
+        cout<<"in PreCalcIntegrals: n="<<n<<", l="<<l<<", np="<<np<<", lp="<<lp<<"; I = "<<IntList[key]<<endl; // debugging
       }
     }
     /*
